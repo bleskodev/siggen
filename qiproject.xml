@@ -1,0 +1,5 @@
+<project version="3">
+  <maintainer email="bleskodev@gmail.com">Blesko Dev</maintainer>
+  <qibuild name="siggen">
+  </qibuild>
+</project>
