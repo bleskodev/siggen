@@ -90,7 +90,7 @@ localinstall: $(PROGS)
 	echo "Copying $$n.1 to $(LOCALMAN)/man1/$$n.1" ; \
 	cp -p $$n.1 $(LOCALMAN)/man1/$$n.1 ; \
 	done
-	@cp -p siggen.conf.5 $(LOCALMAN)/man5
+	@cp -p siggen.conf.5 $(LOCALMAN)/man5/
 	@chmod 644 $(LOCALMAN)/man5/siggen.conf.5
 
 sysinstall: $(PROGS)
@@ -103,7 +103,7 @@ sysinstall: $(PROGS)
 	echo "Copying $$n.1 to $(MANDIR)/man1/$$n.1" ; \
 	cp -p $$n.1 $(MANDIR)/man1/$$n.1 ; \
 	done
-	@cp -p siggen.conf.5 $(MANDIR)/man5
+	@cp -p siggen.conf.5 $(MANDIR)/man5/
 	@chmod 644 $(MANDIR)/man5/siggen.conf.5
 
 nodac:
