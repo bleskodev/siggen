@@ -1,0 +1,172 @@
+.TH smix 1 "20 Feb 1998" "Release 2" "Linux System Manual"
+.SH NAME
+.I smix \- A Simple LINUX Mixer Program
+.SH SYNOPSIS
+.B smix 
+[-v] [-h] [-o file] [-i file] [-m file] [-s] [command(s)] 
+.SH DESCRIPTION
+.I smix
+, a simple mixer program that reports or
+controls the Mixer settings of
+.I /dev/mixer 
+(or the specific mixer device file specified by the "-m file" option)
+from the command line parameter(s).
+.PP
+The commands are detailed below, capitals showing the minimum abbreviation
+allowed. Upper or lower case can be used on the command line. All Volume
+settings are in range 0-100 (0 min, 100 max), but these are scaled to the
+mixers actual range, hence set volume may be slightly different.
+.PP
+To see what devices/channels the mixer is configured with and to get 
+a command summary, use 
+.I smix\ -h
+\.
+.IP SHow\ or\ ALL
+outputs the settings of the mixer. This is the default,
+if no command line parameters are given
+.IP dev
+outputs the current settings for the mixer device named "dev"
+.IP dev\ N\ or\ L,R
+sets mixer device 'dev' to volume N, or to seperate
+left and right stereo volume L,R
+If device doesn't support stereo settings then max of L,R
+is used. The word
+.I off
+can be used instead of 
+.I 0
+and
+.I full 
+can be used instead of 
+.I 100.
+.IP ALL\ N\ or\ L,R
+sets all mixer devices to specified volume setting (see above).
+.IP INput\ dev
+set the DSP input to be 'dev' or 'NOne' to turn inputs off
+.IP Verbose
+makes the program output the settings after doing the
+commands
+.SH OPTIONS
+.IP -h
+show usage summary, which also lists the mixer devices and
+the possible input devices.
+.IP -v
+be verbose - outputs the results of commands. Same as Verbose above
+.IP -i\ file
+read commands from file
+.IP -o\ file      
+divert standard output to file.
+.IP -m\ file
+use 
+.I file
+instead of the default /dev/mixer . The file has to be a valid mixer
+device type.
+.IP -s
+causes smix to output mixer settings etc in a form that can be read
+by smix to cause the same settings to set. This can be used to record the
+settings of all or part of the mixer into a file, change the settings, then
+get smix to reset the original settings by giving the file as an input file, 
+see examples below.
+.PP                   
+Use '-' as a filename to indicate standard input.
+.SH EXAMPLES
+.IP smix
+Displays the current mixer devices and their current settings.
+.IP smix\ -m\ /dev/mixer1
+Displays the devices and their current settings for /dev/mixer1
+.IP smix\ input\ line1\ line1\ 60\ mic\ 0\ show
+sets input to line1, line1 volume to 60 and mic volume to 0 (off)
+and shows the total resultant mixer settings.
+.IP smix\ line1\ 60,0\ show
+sets left line1 input to volume 60 and right line1 input to 0 (off) and
+shows the resultant output.
+.IP smix\ -i\ /etc/mixer.default
+set the mixer settings from smix commands in /etc/mixer.default .
+.IP smix\ -i\ -
+take mixer commands from stdin, with output to stdout. If stdin and stdout
+is the keyboard and display, then mixer commands can by typed and executed
+interactively and control is retained of the mixer while smix is running.
+.IP smix\ -s\ -o\ mixer.conf
+record the current settings of the default mixer in file 
+.I mixer.conf
+in a form that can be fed back in to smix.
+.IP smix\ -i\ mixer.conf\ -o\ /dev/null
+take the file saved, as above, and reset the mixer settings, without 
+doing any output.
+.SH OPTIONAL\ CONFIGURATION\ FILES
+.PP
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+.PP
+All the siggen suite of programs are compiled with the names of the config
+files built in. By default the configuration files are:
+.IP ./.siggen.conf
+is the LOCAL config file.
+.IP $HOME/.siggen.conf
+is the HOME config file.
+.IP /etc/siggen.conf
+is the GLOBAL config file.
+.IP smix\ -h
+will indicate which config files will be searched for.
+.PP
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+.PP
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+.PP
+If no configuration files exist, the program provides builtin
+default values, and these values can be set
+by appropriate command line options and flags.
+.PP
+See siggen.conf(5) for details of the configuration files.
+.PP
+.I smix
+currently looks for configuration values MIXERFILE, VERBOSE.
+.IP MIXERFILE
+allows the name of the mixer device file to be changed from /dev/mixer
+.IP VERBOSE
+sets whether or not to run in verbose mode.
+
+.SH
+.SH SEE ALSO
+.IP siggen.conf(5)
+.PP
+All the other mixer programs that float around the internet.
+.SH BUGS
+.SH
+.SH COPYING
+.I Copyright\ 1995-2008\ Jim\ Jackson
+.PP
+The software described by this manual is covered by the GNU General
+Public License, Version 2, June 1991, issued by :
+.IP
+Free Software Foundation, Inc.,
+.br
+675 Mass Ave,
+.br
+Cambridge, MA 02139, USA
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translation instead of in the original English.
+.SH AUTHOR
+.I Jim Jackson
+.br
+.sp
+.I Email: jj@franjam.org.uk
+
+.br

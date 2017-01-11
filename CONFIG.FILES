@@ -1,0 +1,98 @@
+
+Siggen's Sound Configuration File scheme                       Jim Jackson
+----------------------------------------                          Sep 1998
+
+As from siggen version 2.3 onwards a versatile configuration file scheme has
+been introduced. It allows parameters for all the siggen programs to be
+specified either across the board, or specifically for particular programs.
+
+
+The Configuration Files
+
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+
+All the programs are compiled with the names of the config files built in.
+The filenames are set in the config.h header file and can be changed. The
+LOCAL and GLOBAL config files are specified by the settings of:
+
+LOCAL   #define DEF_CONF_FILENAME ".siggen.conf"
+GLOBAL  #define DEF_GLOBAL_CONF_FILE "/etc/siggen.conf"
+
+And can be set to any file name or to NULL to disable the file. The HOME
+config filename is created using the HOME environment variable and the
+DEF_CONF_FILENAME together, i.e. using the above, the HOME config file for a
+user whose home directory is at /home/jj, would be
+
+HOME    /home/jj/.siggen.conf
+
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+
+If no configuration files exist, the programs themselves provide builtin
+default values (see config.h etc), and most of these values can be set
+by appropriate command line switches and flags.
+
+
+Configuration Values
+
+A configuration value has a name and a value, and values for all programs
+are set by simply entering a line in the appropriate config file where the
+first word is the name, followed by arbitrary spaces/tabs, followed by the
+value. The value is all the rest of that line. e.g. to set the global
+default samplerate of 44100 samples per sec, the following line would be
+entered in the GLOBAL config file:
+
+SAMPLERATE       44100
+
+Config value names are case insensitive.
+
+A config value can be set for a specific program, by prefixing the config
+value name with the program name and a ':'. e.g. to specify a samplerate of
+only 8000 samples per sec for the tones program enter
+
+TONES:SAMPLERATE   8000
+
+in the relevant config file. If both lines above were in the config file,
+all programs except tones would use a samplerate of 44100, and tones would
+use 8000. 
+
+You do not have to specify all configuration values in the config files.
+If a particular value is missing, the programs will simply use their builtin
+defaults (see config.h etc).
+
+Configuration values set by command line switches or flags take precedence
+over values in any of the config files.
+
+Beware: the programs do not have their 'name' built-in, but use the name they
+were invoked by. So if you change the name of a program, remember to change
+the config file entries. However this does means that by using links to a
+program, it can be made to pick up a different set of configuration values,
+depending on the name it is invoked by.
+
+
+Example Configuration File
+
+A sample config file is provided in ".siggen.conf". Any line whose first
+non-whitespace character is a '#', is a comment line and is ignored.
+
+
+What Configuration Values are there?
+
+Please see the seperate file CONFIG.VALUES for details of each config value,
+and which programs use them and what the default builtin values are.
+
+
+The Source and Functions
+
+The source for the config functions is in configsubs.c and independant
+of the rest of the source. The functions can easily be used in other
+programs to provide configuration facilities.
+

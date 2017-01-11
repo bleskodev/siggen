@@ -1,0 +1,201 @@
+
+SCFIO - some routines for displaying and inputing Text, Integers,
+-----   decimal fractions, and selecting from a choice list.
+	These routines are curses/ncurses based.
+	
+	                                     (c) 1997,1998    Jim Jackson
+			     			        jj@franjam.org.uk
+
+[These functions are copyright under the GNU Public License - see the
+ file - COPYING.]
+
+Introduction
+------------
+
+These are functions, structures and macros that allow screen display and
+input of lines of text, integer values, fixed decimal point values, and 
+to select one of a list of options.
+
+In a lot of input routines the calling program effectively relinquishes
+program control until the user has entered the data and pressed some
+recognised termination key that ends the input which causes the function to
+return to the calling program. 
+
+These functions use a structure to hold details of a field and its current
+state, and the functions action a KEY on the field, updating the field value
+and redisplaying if necessary. This allows the calling program to action
+keys as pressed and do other things while waiting for the next key. The
+calling program also has access to the fields value at any time and hence
+can intervene to expand abbreviations, do searches, do value checking, move
+to a new field etc etc.
+
+The SCField structure (see scfio.h) holds, among other things, information
+about the X,Y co-ordinates of the start of the field on the screen, the
+width in chars of the field, what type of field it is, what screen attribute
+to use when displaying the field, and a pointer to the data for the field.
+
+However functions and macros are provided so that the internal details can
+be ignored and a few simple functions only can be used.
+
+One of the side effects of this scheme is that with the state of input being
+recorded in the SCField structure, moving from one field to another brings
+you to the same position in the field as you were when you were last there.
+
+
+Using the functions
+-------------------
+
+Only scfio.h and scfio.c are required. It may be best to copy these into the
+directory in which your C programs are. Any program using these functions,
+must
+
+  #include "scfio.h"
+  
+and link in scfio.o to the program as well as linking in the curses/ncurses
+library. Typically a final linking would be
+
+  gcc prog.o scfio.o -lcurses
+
+Configuration
+-------------
+
+There is only one compilation configuration option at the moment. 
+
+If CLOSED_FIELDS is defined in scfio.h, or by defining it in the compilation
+line, then the LEFT and RIGHT arrows key will be actioned at all times in
+integer and string fields, even if the cursor is at the start or end of the
+field. Of course the cursor will not move, but the key functions will return
+-1 to show that the arrow keys were actioned. 
+
+If CLOSED_FIELDS is not defined then at the start and end of the fields the
+LEFT and RIGHT arrow keys respectively are not actioned, and hence the key
+functions will return their values. If the calling code processes for any
+returned arrow keys (e.g. for moving to previous next field) then one gains
+the effect of moving thru' fields, from one field to another by using the
+arrow keys.
+
+
+The Main Functions
+------------------
+
+struct SCField *newfield(int type,int att,int COL,int ROW,
+                         int W,data *D,int id,int xtra)
+
+This function creates a new struct SCField, and initialises the structure
+with the given information about the field:
+
+ int type   is the type of field this is e.g. SCF_integer, SCF_string,
+            SCF_option. Various flags can be added in to the type e.g.
+	    SCF_string+SCF_fixed for a fixed value text string.
+	    see scfio.h for a full list of values and a description.
+	    
+ int att    the attribute to be used when displaying the field on the screen
+            see ncurses for details of screen attributes
+	    
+ int COL    the column and row positions for the start of the field 
+ int ROW    on the screen. Positions start at 0. 
+ 
+ int W      the width (number of character positions) of the field on the
+            screen.
+	    
+ data *D    A pointer to integer, char[], etc that is the data for the field.
+            If D is NULL then the correct data type will be created and 
+	    the correct ptr used. If a string variable is created it will
+	    correctly hold W characters.
+	    For an SCF_option type D is char **, and it points to an array
+	    of strings defining the options allowed, with the end of the
+	    array indicated by a NULL ptr. For an SCF_option type the data
+	    pointer MUST be present and cannot be auto-created !
+	    
+ int id     An optional parameter that can be used to make a field
+            part of a group of fields sharing a common id or somesuch scheme.
+	    Usually not used and set to 0.
+	    
+ int dp     Integers can be displayed as decimal fractions with a fixed number
+            of decimal places. This is the number of decimal places to
+	    display. The data is stored as an int, even though it is
+	    displayed as a decimal! For pure integers this will be 0.
+
+The function does some checking on the given parameters and if it can
+create the structure and initialise correctly it does so and returns a
+pointer to the structure. If it cannot, then it returns a NULL pointer.
+
+
+putfield(struct SCField *SP)
+
+This function displays the field defined by *SP on the screen.
+However it doesn't do a screen refresh(), this must be done by the 
+calling program. This allows lots of successive putfield's to be
+done followed by a single refresh() to update the display.
+
+
+int actfield(int k, struct SCField *SP)
+
+This function actions the key value k on the field defined by *SP.
+Any new value causes the display to be correctly updated. If the key value
+is recognised and has an action then actfield returns -1. If the key value
+is not recognised and has done nothing the value k is returned.
+See below for a list of the key values that are recognised for different
+types of fields.
+
+
+int GetInt(struct SCField *SP)
+
+returns the current integer value of data in the SCField of type SCF_integer
+
+
+double GetFrac(struct SCField *SP)
+
+takes the current integer value of an SCF_integer type field, and
+divides it by 10^dp to create the exact fractional value as displayed in the
+field.
+
+
+char *GetStr(struct SCField *SP)
+
+returns a pointer to the string data for the SCField of type SCF_string
+
+
+char *GetOption(struct SCField *SP)
+
+returns a pointer to the current selected string option of the SCField of
+type SCF_option.
+
+
+Key Actions
+-----------
+
+Integer fields:
+    Digits 0-9 cause numeric entry, in like manner to a cash 
+      till, numbers entry from the right pushing previous digits leftwards.
+    DEL and Backspace, delete the right most digit and move rest 
+      of digits rightwards
+    UP arrow and DOWN arrow, increment and decrement the number by one
+
+String fields:
+    Printable ASCII characters insert themselves, and push all chars
+      to right of cursor one space rightwards.
+    LEFT and RIGHT arrow, move the cursor left and right one space.
+    DEL and Backspace delete the char to the left of the cursor
+      and move all char to right of cursor one space leftwards.
+    HOME moves cursor to start of string
+    END  moves cursor to end of string
+
+Option fields:
+    UP and DOWN arrow select the previous and next option
+    TAB and Space select the next option
+    HOME selects the first option
+    END selects the last option
+
+ 
+
+Examples
+--------
+
+Several example programs are present in the distribution. See ftch.c and
+invoice.c for exmaples.
+
+There are lower level functions in scfio.c that are available to be used
+by the more adventurous - but I can't be too bothered commenting on those.
+Interested parties should look at scfio.h first then at scfio.c
+

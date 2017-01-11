@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Signal Generation tools for Linux and /dev/dsp</title>
+	<meta name="author" content="Jim Jackson &lt;jj@franjam.org.uk&gt;">
+	<meta name="GENERATOR" content = "Almost Free Text v5.095; Copyright 1996-2004 Todd Coram. All rights reserved.">
+<style type="text/css">
+  <!--
+html { background: #eee; color: #000; }
+
+body { background: #eee; color: #000; margin: 0; padding: 0;}
+
+div.body {
+	background: #fff; color: #000;
+	margin: 0 1em 0 1em; padding: 1em;
+	font-family: serif;
+	font-size: 1em; line-height: 1.2em;
+	border-width: 0 1px 0 1px;
+	border-style: solid;
+	border-color: #aaa;
+}
+
+div.block {
+	background: #F8F8FF; color: #000;
+	margin: 1em; padding: 0 1em 0 1em;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #909090;
+}
+
+table {
+	background: #F8F8F8; color: #000;
+	margin: 1em;
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #C0C0C0;
+}
+
+td {
+	border-width: 0 1px 1px 0;
+	border-style: solid;
+	border-color: #C0C0C0;
+}
+
+th {
+	background: #F8F8FF;
+	border-width: 1px 1px 2px 0;
+	border-style: solid;
+	border-color: #C0C0C0;
+}
+
+
+/* body text, headings, and rules */
+
+p { margin: 0; text-indent: 0em; margin: 0 0 0.5em 0 }
+
+h1, h2, h3, h4, h5, h6 {
+	color: #206020; background: transparent;
+	font-family: Optima, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+h1 { font-size: 1.69em; margin: 1.4em 0 0.4em 0; }
+h2 { font-size: 1.44em; margin: 1.4em 0 0.4em 0; }
+h3 { font-size: 1.21em; margin: 1.4em 0 0.4em 0; }
+h4 { font-size: 1.00em; margin: 1.4em 0 0.4em 0; }
+h5 { font-size: 0.81em; margin: 1.4em 0 0.4em 0; }
+h6 { font-size: 0.64em; margin: 1.4em 0 0.4em 0; }
+
+hr {
+	color: transparent; background: transparent;
+	height: 0px; margin: 0.6em 0;
+	border-width: 1px ;
+	border-style: solid;
+	border-color: #999;
+}
+
+/* bulleted lists and definition lists */
+
+ul { margin: 0 1em 0.6em 2em; padding: 0; }
+li { margin: 0.4em 0 0 0; }
+
+dl { margin: 0.6em 1em 0.6em 2em; }
+dt { color: #206020; }
+
+tt { color: #602020; }
+
+/* links */
+
+a.link {
+	color: #33c; background: transparent;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #000; background: transparent;
+}
+
+body > a {
+	font-family: Optima, Arial, Helvetica, sans-serif;
+	font-size: 0.81em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: #206020; background: transparent;
+	font-family: Optima, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+  -->
+</style>
+</head>
+<body>
+<div class="body">
+
+<br><center><h1><a name="AFT-top">Signal Generation tools for Linux and /dev/dsp</a></h1></center>
+<br><center><h2>Jim Jackson &lt;jj@franjam.org.uk&gt;</h2></center>
+<center>  <strong>SIGGEN</strong></center>
+<center>  <strong>Release 2.3.10  As with all software: there just maybe bugs</strong></center>
+<!-- Start SectLevel1 -->
+<h2><a name="What are the programs?">What are the programs?</a></h2>
+<p class="Body">
+This is a set of tools for imitating a laboratory Signal Generator,
+generating audio signals out of Linux's /dev/dsp audio device. There is
+support for mono and/or stereo and 8 or 16 bit samples. The basic waveform
+sample generation code is in the file generator.c, the functions here can be
+added to other programs fairly easily. 
+</p>
+<p class="Body">
+The current version can be downloaded from here 
+<a class="link" href="http://www.comp.leeds.ac.uk/jj/linux/siggen.tgz">http://www.comp.leeds.ac.uk/jj/linux/siggen.tgz</a>.
+</p>
+<p class="Body">
+This is a bug fix release.
+</p>
+<p class="Body">
+<strong>2.3.10</strong> Release: Paul Martin &amp; Jens Peter Secher (Debian siggen package
+maintainer), reported problems with swept waveforms. There was an 
+integer overflow problem in some circumstances - usually when 
+using the x10 or x100 options.
+</p>
+<p class="Body">
+Also this release changes the config file name from the old <strong>sound.conf</strong>
+to <strong>siggen.conf</strong> . Users with existing files can do:
+</p>
+<div class="block"><pre>
+  cd ~
+  ln -s .sound.conf siggen.conf
+ 
+as root
+
+  cd /etc
+  ln -s sound.conf siggen.conf
+
+or simply copy the files
+</pre></div>
+<p class="Body">
+There should also be less warnings now!
+</p>
+<p class="Body">
+<strong>2.3.9</strong> Release: Lukas Loehrer reported a problem with writing raw
+sound files, and Mark Shimonek reported a bug and fix with setting 
+the DSP device.
+</p>
+<p class="Body">
+Several of the programs below are front ends for using the generator
+functions, mixing the generated outputs and playing them on /dev/dsp. None
+of the generation programs control the mixer - use your favourite mixer
+program or use the simple mixer 'smix' which I have included here.
+</p>
+<blockquote>
+<strong>soundinfo</strong>   A program to display some of the programming capabilities
+    of the sound system support for the mixer device /dev/mixer
+    and the DSP device /dev/dsp. Can easily be changed if
+    the mixer and dsp devices are called something else. Also
+    shows some of the ioctl calls in action :-).\&nbsp;&nbsp;    Further info on your kernel's sound card configuration is
+    given by 'cat /dev/sndstat'.
+</blockquote>
+<blockquote>
+<strong>sgen</strong> is a command line signal generator where
+    details are specified from the command line for generating
+    sine, cos, square, triangle, sawtooth, pulse, noise waves.
+    Frequency, sample rate, relative amplitude etc can be
+    specified thru' command line options. The signal is played 
+    continuously until the program is stopped. There are options
+    to save the basic raw digital samples raw to file or to a WAVE
+    format file.
+</blockquote>
+<blockquote>
+<strong>swgen</strong> is a command line sweep generator. Both the sweeping and swept
+    waveforms can be specified, along with the sweeping frequency
+    and the swept frequency range. Otherwise similar to sgen above.
+</blockquote>
+<p class="Body">
+    
+<blockquote>
+<strong>siggen</strong> an Ncurses screen based Signal Generator for 2 seperate channels.
+    On stereo audio cards the 2 channels are played on seperate 
+    outputs. On mono cards the 2 channels are digitally
+    mixed onto the one output. Type of waveform, frequency, amplitude,
+    sample rate etc are specified/changed via a screen menu.
+    This is version 2. It plays continuously. Changes to parameters
+    take effect (nearly) immediately. This version is pretty CPU
+    intensive.
+</blockquote>
+    
+<blockquote>
+<strong>sweepgen</strong> an Ncurses screen based Sweep generator (see swgen above).
+    It is like siggen. Changes to parameters take effect (nearly)
+    immediately. 
+</blockquote>
+ 
+<blockquote>
+<strong>tones</strong> a command line program to generate several successive tones of
+    varying freq., and optional differing waveforms, durations and
+    intensities.\&nbsp;&nbsp;    The sequence of tones can be either played once (the default), 
+    or repetitively or the samples can be written to a file in raw or 
+    WAV format. This could make the basis of an auto-dialer for 
+    tone phones.\&nbsp;&nbsp;    Check out README.tones and the tones.eg directory for some
+    examples of using the tones program.
+</blockquote>
+</p>
+<blockquote>
+<strong>smix</strong> a simple command line program for getting and setting the mixer
+    settings. (Eee by gum, yet another mixer, yawn).
+</blockquote>
+<blockquote>
+<strong>fsynth</strong> an Ncurses based &quot;fourier&quot; synthesis &quot;realtime&quot; generator.
+</blockquote>
+<!--End Section 1-->
+<h2><a name="Compiling and installing">Compiling and installing</a></h2>
+<p class="Body">
+You will need the ncurses library and header files. You will need sound card
+support compiled into your kernel. You can build some of the programs, tones
+sgen and swgen, without soundcard support. These programs then can be used
+to generate raw data or WAV files. You can also compile these programs
+under other OSes than Linux, e.g. Sunos 4.1.
+</p>
+<p class="Body">
+Edit the configuration file config.h, to set the options/defaults you require.
+The defaults assume compilation under Linux with soundcard support.
+The file has ample comments and should be self explanatory. If anyone wants
+to suggest changes for building under other OSes then let me know and 
+I'll inlcude the changes.
+</p>
+<p class="Body">
+Check out the Makefile and edit anything that is wrong for your system. The
+ncurses library is assumed to be in normal library 'path' and the
+ncurses include file is assumed to be in either /usr/include/curses or
+/usr/include/ncurses/curses . If not, edit as appropriate. Just type 'make'
+to make the programs.
+</p>
+<p class="Body">
+Don't set -Wall in the makefile, the results will be deeply embarassing to
+yours truly :-)
+</p>
+<p class="Body">
+All the programs support optional interrogation of a common set of 
+configuration files. See <strong>CONFIG.FILES</strong> for details.
+</p>
+<p class="Body">
+Type 'make sysinstall' to install the programs into /usr/local/bin and the
+man pages into /usr/local/man/man1. Type 'make localinstall' to install into
+$HOME/bin and $HOME/man/man1. If none of these are ok for you then copy
+manually or edit the Makefile. Edit the setting of variable PROGS to
+customise which programs you install, e.g. you may not wish to install yet
+another mixer program so delete smix from the list.
+</p>
+<p class="Body">
+These programs have been tested on on various versions of Linux from
+Kernels 2.0.36 - 2.6.22, and on distributions from RedHat et al., Debian
+and Ubuntu. Seems to work with ALSA or OSS, and I have reports of it porting to FreeBSD easily. Compiled with no sound card support, the command line utilities
+should work for creating sound files on most *nix OSes.
+</p>
+<!--End Section 1-->
+<h2><a name="Distribution and Copying">Distribution and Copying</a></h2>
+<p class="Body">
+Distribution of this package is covered by the terms of the GNU 
+General Public License, version 2. See the file COPYING for further details.
+These programs are Copyright (c) 1996-2008 Jim Jackson &amp; contributors.
+</p>
+<div class="block"><pre>
+Jim Jackson     &lt;jj@franjam.org.uk&gt;
+</pre></div>
+<hr>
+<p class="Body">
+HomePage <a class="link" href="http://www.comp.leeds.ac.uk/jj">http://www.comp.leeds.ac.uk/jj</a>
+</p>
+<!--End Section 1-->
+<!-- End SectLevel1 -->
+<hr>
+<br>
+<p align="right"> <small>This document was generated using <a class="link" href="http://www.maplefish.com/todd/aft.html">AFT v5.095</a></small> </p>
+</body>
+</html>
+

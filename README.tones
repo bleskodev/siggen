@@ -1,0 +1,111 @@
+
+Some notes on the 'tones' program.                             Jim Jackson
+----------------------------------                                May 1999
+
+The tones program has growed out of a simple sequential tone generator that
+I wrote for Michael Meifert <mime@dk3hg.hanse.de> for generating a sequence
+of tones for control purposes. Since then I've expanded it to maintain a set
+of 'channels', each channel having a seperately configured waveform,
+frequency and intensities. All the channels are mixed to provide the output
+signal. Mark E. Shoulson <mark@kli.org> provided a base patch for adding
+intensity levels. However this showed up bugs in the digital mixer which
+have now been fixed and the amplitude handling much expanded - see the 
+relevant sections in the manual page.
+
+
+Musical note generation
+
+Also I've added the ability to generate musical notes, by being able to
+specify a note + optional sharp + octave digit, e.g. C3 is middle C. The
+tuning is based on the standard concert A of 440Hz (A3), and an equally
+tempered scale. Thanks to Ivor Dykes for the music lessons! If you want a
+different tuning then the frequencies are defined in an array in tonesgen.c,
+and can easily be altered to taste. Thanks also to Robert P. Hanssen
+<hanssen@nova.org> for pointing out a correction to the freq. numbers used
+for generating named notes.
+
+Some examples
+
+tones 2000 sin c3,e3,g3
+   plays the C Major chord
+   
+tones 100 sin 941,1336 0,0 697,1209 0,0 697,1209 0,0 697,1477 0,0
+   generate the dtmf dial tones for '0' '1' '1' '3'
+   Here are the frequencies to use.....
+   1 = 697,1209    2 = 697,1336    3 = 697,1477    4 = 770,1209
+   5 = 770,1336    6 = 770,1477    7 = 852,1209    8 = 852,1336
+   9 = 852,1477    0 = 941,1336    * = 941,1209    # = 941,1477
+   
+tones -loop :2000 sin 1000 square 1000 tri 1000 saw 1000 0
+   generate a series of test waveforms repeatedly. The ':' infront
+   of the default duration setting forces this to be a duration setting
+   even on the loop - otherwise it would be treated as a freq. spec.
+   Yeah it's a bug - but I couldn't see an easy fix.
+
+
+More examples in the tones.eg directory
+
+In sub-directory, tones.eg, there are some examples using the tones program.
+Run make in the tones.eg directory to create the programs ramp, randtone,
+randnote and shepard-risset, and create some more complex loadable waveforms
+in the tones.eg/samples directory. Then try the shell scripts ramp.sh,
+randtone.sh, randnote.sh, slide.sh (the shepard-risset sliding scale) and
+tune.sh .
+
+ramp.sh     generate a slow ramp modulated frequency. Edit the script to
+            change the parameters. 'ramp' simple generates a suitable series
+            of incrementing (or decrementing) numbers that tones converts into
+	    successive short tones.
+
+randtone.sh  generates random tones of varying duration.
+
+randnote.sh  generates random notes
+
+slide.sh     creates and plays a sample shepard-risset sliding scale
+
+tt.sh        plays "There's a hole in my bucket" using the loadable
+             waveform given as a parameter to the script.
+	     
+tune.sh      plays a couple of tunes! File hole_bucket.notes contains the
+             notes for a simple tune. clementine.notes contains the notesi
+	     for a more complex tune with harmony (clementine). Just for fun.
+
+dtmf         script to create dtmf dial tones for single digits given
+             as parameters to the script. e.g. dtmf 0 1 1 3 6 6 6
+
+shepard-risset  is a C program to generate tones commands for generating
+             Shepard-Risset sliding tones - often called elevator sounds
+	     because they appear to be moving up (or down) permanently.
+	     
+	     Try this:
+	     
+	     % shepard-risset 700 7 1.2 15 -50 > /usr/tmp/slide
+	     % tones -c 7 -v -l :200 /usr/tmp/slide
+	      
+	     or just run the slide.sh script. It uses precomputed sequences for
+	     rising and falling elevator sounds.
+	     Read the C code or run shepard-risset with no arguments
+	     to see what the parameters are. See paper
+
+http://www.acm.org/sigchi/chi96/proceedings/shortpap/Beaudoin-Lafon/Mbl_txt.htm
+
+             for more some more details on shepard-risset tones.
+	     
+	     
+Installation of the stuff in tones.eg
+
+You can run 'make' in the tones.eg directory and then run the example
+shell scripts.
+
+e.g.  % cd tones.eg
+      % make
+      % ./tune.sh
+
+If you wish, you can copy the scripts into a suitable directory, your
+own ~/bin directory or /usr/local/bin. You will have to edit the scripts
+to put in the location of the tones program - usually /usr/local/bin.
+The only script worth installing really is 'dtmf' - and I'm sure that 
+can be improved! Feel free - let me know the results.
+
+
+Jim Jackson                  jj@franjam.org.uk

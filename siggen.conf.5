@@ -1,0 +1,238 @@
+.TH siggen.conf 5 "07Feb99" "Release 2.3" "Linux System Manual"
+.SH NAME
+.I siggen.conf \- the siggen configuration files
+.SH SYNOPSIS
+.B siggen.conf
+
+.SH DESCRIPTION
+.PP
+As from siggen version 2.3 onwards a versatile configuration file scheme has
+been introduced. It allows parameters for the siggen programs to be
+specified either across the board, or specifically for particular programs.
+.PP
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+.PP
+All the programs are compiled with the names of the config files built in.
+The filenames are set in the config.h header file and can be changed. The
+LOCAL and GLOBAL config files are specified by the settings of:
+.IP LOCAL
+#define DEF_CONF_FILENAME ".siggen.conf"
+.IP GLOBAL
+#define DEF_GLOBAL_CONF_FILE "/etc/siggen.conf"
+.PP
+And can be set to any file name or to NULL to disable the file. The HOME
+config filename is created using the $HOME environment variable and the
+DEF_CONF_FILENAME together, i.e. using the above, the HOME config file for a
+user whose home directory is at /home/jj, would be
+.IP HOME
+/home/jj/.siggen.conf
+.PP
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+.PP
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+.PP
+If no configuration files exist, the programs themselves provide builtin
+default values (see config.h etc), and most of these values can be set
+by appropriate command line switches and flags.
+
+.SH CONFIGURATION\ VALUES
+.PP
+A configuration value has a name and a value, and values for all programs
+are set by simply entering a line in the appropriate config file where the
+first word is the name, followed by arbitrary spaces/tabs, followed by the
+value. The value is all the rest of that line. e.g. to set the global
+default samplerate of 44100 samples per sec, the following line would be
+entered in the GLOBAL config file:
+
+.IP SAMPLERATE\ \ \ \ \ 44100
+.PP
+Config value names are case insensitive.
+.PP
+A config value can be set for a specific program, by prefixing the config
+value name with the program name and a ':'. e.g. to specify a samplerate of
+only 8000 samples per sec for the tones program enter
+
+.IP TONES:SAMPLERATE\ \ \ \ 8000
+
+.PP
+in the relevant config file. If both lines above were in the config file,
+all programs except tones would use a samplerate of 44100, and tones would
+use 8000. 
+.PP
+You do not have to specify all configuration values in the config files.
+If a particular value is missing, the programs will simply use their builtin
+defaults (see config.h etc).
+.PP
+Configuration values set by command line switches or flags take precedence
+over values in any of the config files.
+.I
+.IP Beware
+the programs do not have their 'name' built-in, but use the name they
+were invoked by. So if you change the name of a program, remember to change
+the config file entries. However this does means that by using links to a
+program, it can be made to pick up a different set of configuration values,
+depending on the name it is invoked by.
+
+.SH EXAMPLE\ CONFIGURATION\ FILE
+.PP
+A sample config file is provided in ".siggen.conf" in the distribution. This
+may also be at /etc/siggen.conf . Any line whose first non-whitespace
+character is a '#', is a comment line and is ignored.
+
+.SH WHAT\ CONFIGURATION\ VALUES\ ARE\ THERE?
+.PP
+Not all of the siggen programs use all the values described here.
+See the relevant man page for which values are used by which programs.
+
+.I
+.IP CHANNELS
+In all programs except tones and fsynth, channels specifies
+the number of output channels to use, i.e. 1 for Mono and 2 for
+Stereo.
+.IP 
+For tones, channels specifies the number of 'voices' on which
+tones can generate different waveforms before mixing them into
+the one output channel.
+.IP	     
+For fsynth, channels specifies the numbers of seperately
+configurable oscillators used to mix the single output channel.
+.I
+.IP DACFILE
+The Digital to Analogue Converter (or PCM or DSP) device on
+which to output the generated samples. This must be a real OSS
+PCM device, otherwise the ioctls used will fail.
+
+.I
+.IP FRAGMENTS
+The number of Audio Buffer fragments to configure in the driver.
+The interactive programs respond to changes made to parameters
+from the keyboard immediately, but data will be buffered in the
+driver in the buffer fragments. If the amount of data buffered
+is too much then there will very noticable delays before
+the output sound is altered. Against that, insufficient buffering
+may mean that there is not enough data buffered for output to
+cover the time when other processes are being run by the 
+scheduler. The programs set the buffer size to the nearest
+power of 2 to give aprox. 100millisecs of sound. Hence if
+FRAGMENTS is set to 3, there will be aprox. 0.3 secs worth
+of sound buffered for output. On a lightly loaded fast 
+machine this, or 2, should be sufficient. To cover periods
+of heavy load or on a less powerful machine use 4 or 5.
+But remember the interactive programs will appear sluggish
+in responding to the keyboard.
+	     
+.I
+.IP SAMPLERATE
+The number of samples per second to use. If output is to the DAC
+then the DAC device is set to output samples at this rate.
+.br
+.I BEWARE:
+not all cards can support all samplerates. SoundBlasters
+are fairly flexible in this respect. Other cheaper cards are
+not. Indeed some cards can only handle a very restricted set of
+related samplerates e.g. 11025, 22050, 44100 & 8000, 16000,
+32000, 48000. When writing to DACFILE all programs will attempt
+to set the samplerate given, but use the actual samplerate the
+device used. Use the verbose command line flag to check actual
+samplerates used.
+.PP 
+Some common samplerates used are:
+.I
+.IP \ \ \ \ 8000
+is the samplerate used in the phone system with 8 bit
+samples, and is adequate for voice range frequencies.
+.I
+.IP \ \ \ \ 44100
+is the samplerate used in audio CDs
+.I
+.IP \ \ \ \ 48000
+is the samplerate used in DAT systems, I think, 
+and for much professional kit.
+.I
+.IP \ \ \ \ 32000
+is also used, but I forget where, minidisc?.
+.IP
+In general, the higher the samplerate the larger the memory 
+and processing requirement, but the higher the frequency range
+and the more accurate the signals generated.
+
+.I
+.IP SAMPLESIZE 
+Number of bits per sample. Only two values are allowed currently,
+8 or 16. 
+.I
+.IP \ \ \ \ 8
+bit samples are unsigned, with decimal value 128 being the
+\'zero\' level.
+.I
+.IP \ \ \ \ 16
+bit samples are signed little endian values, i.e. the least
+significant byte comes before the most significant byte either in
+a file, or in the byte stream to an output device.
+.IP
+If samplesize if left completely unspecified, then all programs
+will attempt to do 16 bit samples to DACFILE, and if that isn't
+possible will do 8 bit samples. Or if writing to a file, 16 bit
+samples will be written.
+	     
+.I
+.IP VERBOSE
+sets verbosity level. 
+.I
+.IP \ \ \ \ 0
+is quiet
+.I
+.IP \ \ \ \ 1
+is be a bit verbose  (equiv. to -v  switch)
+.I
+.IP \ \ \ \ 2
+is be very verbose   (equiv. to -vv switch)
+
+.I
+.IP VI_KEYS
+if set to a non-zero value, then the VI cursor moving keys
+"HJKL" are enabled.
+
+.SH SEE ALSO
+.IP sgen(1),\ swgen(1)
+
+.SH BUGS
+.SH
+.SH COPYING
+.I Copyright\ 1995-2008\ Jim\ Jackson
+.PP
+The software described by this manual is covered by the GNU General
+Public License, Version 2, June 1991, issued by :
+.IP
+Free Software Foundation, Inc.,
+.br
+675 Mass Ave,
+.br
+Cambridge, MA 02139, USA
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translation instead of in the original English.
+.SH AUTHOR
+.I Jim Jackson
+.br
+.sp
+.I Email: jj@franjam.org.uk
+.br

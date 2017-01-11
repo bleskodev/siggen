@@ -1,0 +1,112 @@
+
+Complete List of Configuration Values used by SIGGEN progams
+------------------------------------------------------------
+
+Name        sgen  swgen  tones  siggen  sweepgen  fsynth  smix
+--------    ----  -----  -----  ------  --------  ------  ----
+BUFFSPERSEC  N     N      N      Y       Y         Y       N
+CHANNELS     Y     Y      Y      Y       Y         Y       N
+DACFILE      Y     Y      Y      Y       Y         Y       N
+FRAGMENTS    N     N      N      Y       Y         Y       N
+LOADABLE_WAVEFORMS
+             N     N      Y      N       N         N       N
+MIXERFILE    N     N      N      N       N         N       Y
+SAMPLERATE   Y     Y      Y      Y       Y         Y       N
+SAMPLESIZE   Y     Y      Y      Y       Y         Y       N
+VERBOSE      Y     Y      Y      Y       Y         Y       Y
+VI_KEYS      N     N      N      Y       Y         Y       N
+
+Configuration Value Details
+---------------------------
+
+BUFFSPERSEC  The number of sound buffer fragments to play every second.
+             This is used to calculate the size of the buffer fragments, to
+             the nearest power of 2. see FRAGMENTS below for a fuller
+             discussion.
+	     
+CHANNELS     In all programs except tones and fsynth, channels specifies
+             the number of output channels to use, i.e. 1 for Mono and 2 for
+	     Stereo.
+	     
+	     For tones, channels specifies the number of 'voices' on which
+             tones can generate different waveforms before mixing them into
+	     the one output channel.
+	     
+	     For fsynth, channels specifies the numbers of seperately
+	     configurable oscillators used to mix the single output channel.
+	     
+DACFILE      The Digital to Analogue Converter (or PCM of DSP) device on
+             which to output the generated samples. This must be a real OSS
+	     PCM device, otherwise the ioctls used will fail.
+
+FRAGMENTS    The number of Audio Buffer fragments to configure in the driver.
+	     The interactive programs respond to changes made to parameters
+	     from the keyboard immediately, but data will be buffered in
+	     driver in the buffer fragments. If the amount of data buffered
+	     is too much then there will very noticable delays before the
+	     output sound is altered. Against that, insufficient buffering
+	     may mean that there is not enough data buffered for output to
+	     cover the time when other processes are being run by the
+	     scheduler. The programs set the buffer size so that aprox.
+	     BUFFSPERSEC buffers are played every second. Hence there will
+	     be (FRAGMENTS/BUFFSPERSEC) seconds worth of samples buffered.
+	     Hence if FRAGMENTS is set to 3, and BUFFSPERSEC set to 15,
+	     there will be aprox. 3/15 = 0.2 secs worth of sound buffered
+	     for output. On a lightly loaded fast machine this, should be
+	     sufficient. To cover periods of heavy load or on a less
+	     powerful machine set FRAGMENTS to 4 or 5, or set BUFFSPERSEC to
+	     a lower value. But remember the interactive programs will
+	     appear sluggish in responding to the keyboard.
+
+LOADABLE_WAVEFORMS
+             Number of loadable waveforms allowed.
+	     
+MIXERFILE    The mixer device to control. This must be a real OSS
+	     mixer device, otherwise the ioctls used will fail.
+
+SAMPLERATE   The number of samples per second to use. If output is to the DAC
+	     then the DAC device is set to output samples at this rate.
+	     BEWARE: not all cards can support all samplerates. SoundBlasters
+	     are fairly flexible in this respect. Other cheaper cards are
+	     not. Indeed some cards can only handle a very restricted set of
+	     related samplerates e.g. 11025, 22050, 44100 & 8000, 16000,
+	     32000, 48000. When writing to DACFILE all programs will attempt
+	     to set the samplerate given, but use the actual samplerate the
+	     device used. Use the verbose command line flag to check actual
+	     samplerates used.
+
+	     8000 is the samplerate used in the phone system with 8 bit
+	     samples, and is adequate for voice range frequencies.
+	     
+	     44100 is the samplerate used in audio CDs
+	     
+	     48000 is the samplerate used in DAT systems, I think.
+	     
+	     32000 is also used, but I forget where.
+	     
+	     In general, the higher the samplerate the larger the memory 
+	     and processing requirement, but the higher the frequency range
+	     and the more accurate the signals generated.
+
+SAMPLESIZE   Number of bits per sample. Only two values are allowed currently,
+             8 or 16. 
+	     
+	     8 bit samples are unsigned, with decimal value 128 being the
+	     'zero' level.
+	     
+	     16 bit samples are signed little endian values, i.e. the least
+	     significant byte comes before the most significant byte either in
+	     a file, or in the byte stream to an output device.
+	     
+	     If samplesize if left completely unspecified, then all programs
+	     will attempt to do 16 bit samples to DACFILE, and if that isn't
+	     possible will do 8 bit samples. Or if writing to a file, 16 bit
+	     samples will be written.
+	     
+VERBOSE      sets verbosity level. 
+               0  -  is quiet
+               1  -  is be a bit verbose  (equiv. to -v  switch)
+               2  -  is be very verbose   (equiv. to -vv switch)
+
+VI_KEYS      if set to a non-zero value, then the VI cursor moving keys
+             "HJKL" are enabled.

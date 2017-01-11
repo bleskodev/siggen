@@ -1,0 +1,13 @@
+add 0.1 and 0.01 HZ resolution to siggen and sweepgen
+Should be possible - add a new configuration param RESOLUTION with
+values of 1 10 or 100.
+
+double check. all manual pages - especially siggen, sweepgen and fsynth
+I've improved siggen - do similar for sweepgen and fsynth.
+
+	  
+	  Add loading of custom waveforms.
+
+oh boy yes.
+
+

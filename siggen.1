@@ -1,0 +1,247 @@
+.TH siggen 1 "20 Aug 1999" "Release 2" "Linux System Manual"
+.SH NAME
+.I siggen \- an Ncurses based signal generator program
+.SH SYNOPSIS
+.IP siggen\ [options]\ [waveform\ [freq]]
+.SH DESCRIPTION
+.I siggen
+is a simple signal generator program, with an Ncurses based user interface,
+that can digitally generate standard waveforms on the LINUX /dev/dsp device.
+8 or 16 bit samples can be generated depending on the hardware.
+.PP
+.I siggen
+allows two independant waveforms to be generated.
+In stereo the two signals appear on different channels. In mono the two
+signals are digitally mixed onto the one mono channel.
+.PP
+The frequency is
+specified as an integer number of Hertz. Fractional Hertz frequencies are
+not supported. Of course, only frequencies less than half the samplerate
+(number of samples/sec) are accurately meaningful. Higher frequencies can
+be specified, but don't expect to hear them!
+.PP
+On screen values for individual fields can be locked to prevent 
+accidental changes. The unlock facility unlocks all locked fields.
+.PP
+Corresponding values for the 2 channels can be set to track, the
+values are made equal and a change to one causes a change to the other.
+e.g. making the frequency values track will make both channels the same
+frequency, and altering one freq. value alters both simultaneously.
+.PP 
+The waveforms that can be generated are:
+.IP sine
+A standard sine wave
+.IP cosine
+a sine wave with a 90 degree phase shift
+.IP square
+a standard square wave with a 50% mark space ratio
+.IP triangle
+a linear rise from 0 to peak, thru' 0 to negative peak, and back to 0
+.IP sawtooth
+a ramp waveform with 'infinitely' fast flyback (:-) An ideal oscilloscope
+timebase signal.
+.IP noise
+This is weak. All it consists of is one second of pseudo-randomly generated
+samples, played repeatedly. I'd love to do proper white/pink noise,
+but I don't know enough, and I don't think the structure of the program
+is conducive to accurate noise generation.
+.IP pulse
+A square waveform where the mark/space ratio (as a percentage) can be 
+specified. The default value is 10% (mark/space ratio of 1:9).
+.PP
+A lot of thought has gone into the algorithms for generating the waveforms.
+I believe the sin/cos wave to be very pure (modulo your sound card :-), but
+I don't have access to a THD meter to measure it. For best signal accuracy
+leave the gain setting at 100(%). The generator will then make the wave's
+peak value fit the maximum digital values allowed. Use a mixer program to
+control the output volume, or an external attenuator.
+.PP
+The gain factor option can be useful for simulating a signal that has been
+subject to clipping, by specifing a gain of > 100%. In fact a trapezoid signal
+can be made by generating a clipped sawtooth wave. The greater the gain,
+the closer the signal approaches a square wave (the rise and fall times
+decrease).
+.PP
+.I siggen
+ordinarily
+generates one seconds worth of 1 Hz samples at the specified samplerate,
+for each waveform, and generates frequency F by circularly sampling every
+Fth sample. Each buffer fragment is generated for the parameter(s) set at
+that moment. Buffer fragment sizes are set so that aprox. 10 fragments/sec 
+are generated. Changing a generation parameter, e.g. waveform, frequency, 
+gain, will impact the next buffer fragment generated, and hence changes 
+appear to be almost immediate.
+.PP
+The 
+.I -res
+option can be used to make siggen generate signals with 0.1Hz resolution,
+or 0.01Hz resolution. However 
+.I be\ warned
+at 0.1Hz resolution the basic waveform sample
+buffers generated are each 10 times
+(and at 0.01Hz resolution 100 times) as big as the samplerate. It typically
+requires 5.5Mbytes of memory to run at 0.1Hz resolution, 16bit 32000 
+samples/sec. and 55Mbytes of memory to run at 0.01Hz resolution. Because of the large buffer sizes, the initial waveform calculation time can also be lengthy.
+Remember also that the waveforms are re-calculated whenever the playing 
+parameters, 8/16bit, mono/stereo, samplerate are changed.
+
+.PP
+If your sounds periodically 'breaks' up with clicks or breaks,
+it is usually a sign
+that siggen is not being scheduled sufficiently often. Either increase the
+priority (see 
+.I nice
+et al.), kill off other processes, get a faster processor, or increase the
+number of audio buffer fragments that siggen uses. This last will make
+siggen respond more sluggishly to changes in generation parameters.
+.I syslogd
+and
+.I crond
+are two processes that I've found useful to kill off - YMMV.
+.IP Defaults
+output to /dev/dsp, 22050 samples/sec, stereo if stereo card else mono,
+16 bit samples if possible, else 8 bit, 3 audio buffer fragments.
+.SH CONFIGURATION\ FILES
+.PP
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+.PP
+All the siggen suite of programs are compiled with the names of the config
+files built in. By default the configuration files are:
+.IP ./.siggen.conf
+is the LOCAL config file.
+.IP $HOME/.siggen.conf
+is the HOME config file.
+.IP /etc/siggen.conf
+is the GLOBAL config file.
+.IP siggen\ -h
+will indicate which config files will be searched for.
+.PP
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+.PP
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+.PP
+If no configuration files exist, the program provides builtin
+default values, and most of these values can be set
+by appropriate command line switches and flags.
+.PP
+See siggen.conf(5) for details of the configuration files.
+.PP
+.I siggen
+looks for configuration values BUFFERSPERSEC, CHANNELS, DACFILE, FRAGMENTS,
+RESOLUTION, SAMPLERATE, SAMPLESIZE, VERBOSE, VI_KEYS.
+.IP BUFFERSPERSEC
+The aprox. number of sound buffer fragments to play every second
+(Sound buffersize is always a power of 2).
+.IP CHANNELS
+sets the number of channels, see '-c' option.
+.IP DACFILE
+allows the name of the DAC/DSP/PCM device to be changed from /dev/dsp
+.IP FRAGMENTS
+The number of Audio Buffers to configure in the driver.
+.IP RESOLUTION
+The minimum change possible to the frequency setting. Only 3 values allowed:
+1Hz , 0.1Hz or 0.01Hz
+.IP SAMPLERATE
+sets the number of samples/sec for the DAC device
+.IP SAMPLESIZE
+sets whether 8 or 16 bit samples to be generated
+.IP VERBOSE
+sets whether or not to run in verbose mode.
+.IP VI_KEYS
+if set then the VI cursor moving keys "HJKL" are enabled
+.SH OPTIONS
+.IP -h
+display usage and help info
+.IP -BPS\ n
+configure to play aprox. n audio buffers per second.
+.IP -C\ configfile
+Use configfile as the LOCAL configuration file.
+.IP -NB\ n
+set number of audio buffers to n
+.IP -v
+be verbose
+.IP -s\ samples
+generate with samplerate of samples/sec
+.IP -8|-16\ or\ -b\ 8|16
+force 8 bit or 16 bit mode.
+.IP -1|-2
+mono or stereo
+.IP -res\ n
+set resolution of frequency generation. Valid values are: 1Hz, 0.l1Hz or 0.01Hz
+.SH EXAMPLES
+.SH
+.SH FILES
+.SH
+.SH SEE ALSO
+sgen, swgen, tones, sweepgen, siggen.conf
+.SH BUGS
+.SH
+.SH COPYING
+.I Copyright\ 1995-2008\ Jim\ Jackson
+.PP
+The software described by this manual is covered by the GNU General
+Public License, Version 2, June 1991, issued by :
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.IP
+Free Software Foundation, Inc.,
+.br
+675 Mass Ave,
+.br
+Cambridge, MA 02139, USA
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translation instead of in the original English.
+.SH AUTHOR
+.I Jim Jackson
+.br
+.sp
+.I Email: jj@franjam.org.uk
+.br

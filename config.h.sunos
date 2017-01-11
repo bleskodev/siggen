@@ -1,0 +1,109 @@
+/* config.h
+ * global config header file for all programs
+ * Jim Jackson  <jj@franjam.org.uk>  Jun 98
+ */
+
+#ifndef _config_siggen_h
+#define _config_siggen_h
+
+/* USER CONFIGUARABLE STUFF ------------------------------- */
+/*
+ * NO_DAC_DEVICE     uncomment/set this to build sgen, swgen or tones
+ *                   in wav/raw data file output mode only.
+ *                   This turns off all reference to soundcards and
+ *                   DSP/Audio devices.
+ *
+ * SUNOS             uncomment/set this for compiling under SUNOS 4
+ */
+
+#define NO_DAC_DEVICE
+#define SUNOS
+
+/* DAC_FILE is name of sound output device
+ * DEF_PLAYTIME is default playing time for file output in millisecs
+ * SAMPLERATE is default samplerate to use, could be 8000 for simple
+ *            stuff or 44100 for HiFi quality.
+ * VI_KEYS    true if the VI cursor moving keys "HJKL" are to be active.
+ * DEF_TONES_CHANNELS default number of channels for tones program
+ * DEF_FSYNTH_CHANNELS default number of channels for fsynth program
+ * DEF_CONF_FILENAME     name of local config file. 
+ * DEF_GLOBAL_CONF_FILE  name of default global configuration file. 
+ *            The startup process looks for a config. file in local directory,
+ *            then home directory, and finally looks for this file.
+ *            For structure of config files see sample .sound.conf
+ * DEFAULT_FRAGMENTS  number of buffer fragments to configure in sound driver
+ *             for playing. Used by interactive programs to limit
+ *             the 'play ahead' of sound samples so that parameter changes
+ *             appear to happen 'straight' away. This is a compromise
+ *             too few buffers and there may not be enough play ahead
+ *             to cover the time that other programs are running,
+ *             too many buffers and the programs feel very unresponsive.
+ *             The programs attempt to set the buffer size dependant on
+ *             the samplerate, so that one buffer takes very approx. 
+ *             100millisecs of samples (buffer size is the nearest 
+ *             power of 2).
+ * DEF_WN     default number of loadable waveforms to allow
+ */
+
+#define DAC_FILE "/dev/dsp"
+#define DEF_PLAYTIME  1000
+#define QDEF_PLAYTIME "1000"
+#define SAMPLERATE  22050
+#define QSAMPLERATE "22050"
+#define VI_KEYS   0
+#define QVI_KEYS  "0"
+#define DEF_TONES_CHANNELS  4
+#define QDEF_TONES_CHANNELS "4"
+#define DEF_FSYNTH_CHANNELS  13
+#define QDEF_FSYNTH_CHANNELS "13"
+#define DEF_WN     10
+#define QDEF_WN    "10"
+#define DEF_CONF_FILENAME ".sound.conf"
+#define DEF_GLOBAL_CONF_FILE "/etc/sound.conf"
+#define DEFAULT_FRAGMENTS  3
+#define QDEFAULT_FRAGMENTS "3"
+
+/* End of USER CONFIGURABLE STUFF ------------------------- */
+
+/* Set various things depending on what the user configures.....
+ *
+ * If no soundcard stuff, we need to define the AFMT values.
+ * If SUNOS we need to do some extern stuff, and include the correct
+ *  string(s).h
+ */
+
+#ifndef NO_DAC_DEVICE
+#define HAVE_DAC_DEVICE
+#include <sys/soundcard.h>
+#else
+#define AFMT_QUERY  0
+#define AFMT_S16_LE 16
+#define AFMT_U8     8
+#endif
+
+#define QAFMT_QUERY "0"
+
+#ifdef SUNOS
+extern char *sys_errlist[];
+extern int sys_nerr;
+extern char *strrchr(),*strlchr();
+#define BIGENDIAN
+#endif
+
+#define EFAIL -1
+
+/* Some useful defines that are common to all programs......
+ */
+
+/* define the dB function for converting a dB 
+ * value to a linear amplitude factor. Assumes and returns double values
+ */
+
+#define dB(X) pow(10,X/20.0)
+
+/* and some predefinitions......
+ */
+
+char *get_conf_value();
+
+#endif   /*  _config_siggen_h */

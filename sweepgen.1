@@ -1,0 +1,206 @@
+.TH sweepgen 1 "20 Feb 1998" "Release 2" "Linux System Manual"
+.SH NAME
+.I sweepgen \- an Ncurses based sweep generator program
+.SH SYNOPSIS
+.IP sweepgen\ [options]
+.SH DESCRIPTION
+.I sweepgen
+is a simple sweep signal generator program, with an Ncurses based user 
+interface, that can digitally generate waveforms on the LINUX 
+.B /dev/dsp
+device.
+8 or 16 bit samples can be generated depending on the hardware.
+.PP
+.I sweepgen
+in 
+.B MONO
+mode outputs the generated swept waveform. In 
+.B STEREO
+mode the swept waveform is output on one channel, and the sweeping waveform
+is output on the second channel.
+.PP
+The sweeping frequency is by default
+specified as an integer number of Hertz. Fractional Hertz frequencies,
+specifiable to 0.1Hz or 0.01Hz resolution, are
+supported by use of the 
+.I -res
+command line option, or the
+.I resolution
+parameter in the configuration file(s). However
+.I be\ warned
+at 0.1Hz resolution the basic waveform sample buffers generated 
+are each 10 times
+(and at 0.01Hz resolution 100 times) as big as the samplerate. It typically
+requires 5.5Mbytes of memory to run at 0.1Hz resolution, 16bit 32000
+samples/sec. and 55Mbytes of memory to run at 0.01Hz resolution. Because of the
+large buffer sizes, the initial waveform calculation time can also be lengthy.
+Remember also that the waveforms are re-calculated whenever the playing
+parameters, 8/16bit, mono/stereo, samplerate are changed.
+
+.PP
+The swept waveform frequencies are specified either as a lower and upper
+frequency, or as a centre frequency with a frequency variation.
+.IP 1000\ 500
+would signify a range of 1000-500 Hz to 1000+500 Hz, i.e. 500 to 1500 Hz
+.PP
+Of course, only frequencies less than half the samplerate
+(number of samples/sec) can be generated. Although this is not checked. 
+.PP 
+The waveforms that can be used as either the sweeping or swept signals are:
+.IP sine
+A standard sine wave
+.IP square
+a standard square wave with a 50% mark space ratio
+.IP triangle
+a linear rise from 0 to peak, thru' 0 to negative peak, and back to 0
+.IP sawtooth
+a ramp waveform with 'infinitely' fast flyback (:-) An ideal oscilloscope
+timebase signal.
+.IP noise
+This is weak. All it consists of is one second of pseudo-randomly generated
+samples, played repeatedly. I'd love to do proper white/pink noise,
+but I don't know enough, and I don't think the structure of the program
+is conducive to accurate noise generation.
+.IP pulse
+A square waveform where the mark/space ratio (as a percentage)
+is 10% (mark/space ratio of 1:9).
+.PP
+A lot of thought has gone into the algorithms for generating the waveforms.
+I believe the sin/cos wave to be very pure (modulo your sound card :-), but
+I don't have access to a THD meter to measure it. 
+.PP
+At 1Hz resolution,
+.I sweepgen
+generates one seconds worth of 1 Hz samples at the specified samplerate, for
+each waveform, and generates sweeping frequency F by circularly sampling
+every Fth sample. These samples are scaled to fit the swept frequency range
+and are used to sample the swept waveform to generate the swept signal.
+Each buffer fragment is generated for the parameter(s)
+set at that moment. By default, buffer fragment sizes are set so that aprox. 10
+fragments/sec are generated. Changing a generation parameter, e.g. waveform,
+frequency, will impact the next buffer fragment generated, and hence
+changes appear to be almost immediate.
+.PP
+If your sounds periodically 'breaks' up with clicks or breaks,
+it is usually a sign
+that siggen is not being scheduled sufficiently often. Either up the
+priority (see 
+.I nice
+et al.), kill off other processes, get a faster processor, or increase the
+number of audio buffer fragments that siggen uses. This last will make
+siggen respond more sluggishly to changes in generation parameters.
+.I syslogd
+and
+.I crond
+are two processes that I've found useful to kill off - YMMV.
+.IP Defaults
+output to /dev/dsp, 22050 samples/sec, stereo if stereo card else mono,
+16 bit samples if possible, else 8 bit. 
+.SH CONFIGURATION\ FILES
+.PP
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+.PP
+All the siggen suite of programs are compiled with the names of the config
+files built in. By default the configuration files are:
+.IP ./.siggen.conf
+is the LOCAL config file.
+.IP $HOME/.siggen.conf
+is the HOME config file.
+.IP /etc/siggen.conf
+is the GLOBAL config file.
+.IP siggen\ -h
+will indicate which config files will be searched for.
+.PP
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+.PP
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+.PP
+If no configuration files exist, the program provides builtin
+default values, and most of these values can be set
+by appropriate command line switches and flags.
+.PP
+See siggen.conf(5) for details of the configuration files.
+.PP
+.I sweepgen
+looks for configuration values BUFFERSPERSEC, CHANNELS, DACFILE, FRAGMENTS,
+RESOLUTION, SAMPLERATE, SAMPLESIZE, VERBOSE, VI_KEYS.
+.IP BUFFERSPERSEC
+The aprox. number of sound buffer fragments to play every second
+(Sound buffersize is always a power of 2).
+.IP CHANNELS
+sets the number of channels, mono or stereo.
+.IP DACFILE
+allows the name of the DAC/DSP/PCM device to be changed from /dev/dsp
+.IP FRAGMENTS
+The number of Audio Buffers to configure in the driver.
+.IP RESOLUTION
+The minimum change possible to the frequency setting. Only 3 values allowed:
+1Hz , 0.1Hz or 0.01Hz
+.IP SAMPLERATE
+sets the number of samples/sec for the DAC device
+.IP SAMPLESIZE
+sets whether 8 or 16 bit samples to be generated
+.IP VERBOSE
+sets whether or not to run in verbose mode.
+.IP VI_KEYS
+if set then the VI cursor moving keys "HJKL" are enabled
+
+.SH OPTIONS
+.IP -h
+display usage and help info
+.IP -v
+be verbose
+.IP -s\ samples
+generate with samplerate of samples/sec
+.IP -8|-16\ or\ -b\ 8|16
+force 8 bit or 16 bit mode.
+.IP -1|-2
+mono or stereo mode
+.IP -res\ n
+set resolution of frequency generation. Valid values are: 1Hz, 0.l1Hz or 0.01Hz
+.SH EXAMPLES
+.SH
+.SH FILES
+.SH
+.SH SEE ALSO
+swgen, sgen, siggen, tones
+.SH BUGS
+.SH
+.SH COPYING
+.I Copyright\ 1995-2008\ Jim\ Jackson
+.PP
+The software described by this manual is covered by the GNU General
+Public License, Version 2, June 1991, issued by :
+.IP
+Free Software Foundation, Inc.,
+.br
+675 Mass Ave,
+.br
+Cambridge, MA 02139, USA
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translation instead of in the original English.
+.SH AUTHOR
+.I Jim Jackson
+.br
+.sp
+.I Email: jj@franjam.org.uk
+.br

@@ -1,0 +1,4 @@
+# build a bassoon 'p' like tone......
+#sin
+:1000
+1@-0.8,2@-8.5,3@-20,4@-20

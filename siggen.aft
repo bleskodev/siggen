@@ -1,0 +1,153 @@
+*Title:  Signal Generation tools for Linux and /dev/dsp
+*Author: Jim Jackson <jj@franjam.org.uk>
+
+		  _SIGGEN_
+
+		  _Release 2.3.10  As with all software: there just maybe bugs_
+
+*What are the programs?
+
+This is a set of tools for imitating a laboratory Signal Generator,
+generating audio signals out of Linux's /dev/dsp audio device. There is
+support for mono and/or stereo and 8 or 16 bit samples. The basic waveform
+sample generation code is in the file generator.c, the functions here can be
+added to other programs fairly easily. 
+
+The current version can be downloaded from here 
+{+http://www.comp.leeds.ac.uk/jj/linux/siggen.tgz+}.
+
+This is a bug fix release.
+
+_2.3.10_ Release: Paul Martin & Jens Peter Secher (Debian siggen package
+maintainer), reported problems with swept waveforms. There was an 
+integer overflow problem in some circumstances - usually when 
+using the x10 or x100 options.
+
+Also this release changes the config file name from the old _sound.conf_
+to _siggen.conf_ . Users with existing files can do:
+
+^<<
+  cd ~
+  ln -s .sound.conf siggen.conf
+ 
+as root
+
+  cd /etc
+  ln -s sound.conf siggen.conf
+
+or simply copy the files
+^>>
+
+There should also be less warnings now!
+
+_2.3.9_ Release: Lukas Loehrer reported a problem with writing raw
+sound files, and Mark Shimonek reported a bug and fix with setting 
+the DSP device.
+
+Several of the programs below are front ends for using the generator
+functions, mixing the generated outputs and playing them on /dev/dsp. None
+of the generation programs control the mixer - use your favourite mixer
+program or use the simple mixer 'smix' which I have included here.
+
+	#_soundinfo_   A program to display some of the programming capabilities
+            of the sound system support for the mixer device /dev/mixer
+            and the DSP device /dev/dsp. Can easily be changed if
+            the mixer and dsp devices are called something else. Also
+            shows some of the ioctl calls in action :-).\\
+            Further info on your kernel's sound card configuration is
+            given by 'cat /dev/sndstat'.
+
+	#_sgen_ is a command line signal generator where
+            details are specified from the command line for generating
+            sine, cos, square, triangle, sawtooth, pulse, noise waves.
+            Frequency, sample rate, relative amplitude etc can be
+            specified thru' command line options. The signal is played 
+            continuously until the program is stopped. There are options
+            to save the basic raw digital samples raw to file or to a WAVE
+	    format file.
+
+	#_swgen_ is a command line sweep generator. Both the sweeping and swept
+	    waveforms can be specified, along with the sweeping frequency
+	    and the swept frequency range. Otherwise similar to sgen above.
+    
+	#_siggen_ an Ncurses screen based Signal Generator for 2 seperate channels.
+            On stereo audio cards the 2 channels are played on seperate 
+            outputs. On mono cards the 2 channels are digitally
+            mixed onto the one output. Type of waveform, frequency, amplitude,
+	    sample rate etc are specified/changed via a screen menu.
+	    This is version 2. It plays continuously. Changes to parameters
+	    take effect (nearly) immediately. This version is pretty CPU
+	    intensive.
+    
+	#_sweepgen_ an Ncurses screen based Sweep generator (see swgen above).
+	    It is like siggen. Changes to parameters take effect (nearly)
+	    immediately. 
+ 
+	#_tones_ a command line program to generate several successive tones of
+	    varying freq., and optional differing waveforms, durations and
+	    intensities.\\
+            The sequence of tones can be either played once (the default), 
+            or repetitively or the samples can be written to a file in raw or 
+            WAV format. This could make the basis of an auto-dialer for 
+            tone phones.\\
+            Check out README.tones and the tones.eg directory for some
+            examples of using the tones program.
+
+	#_smix_ a simple command line program for getting and setting the mixer
+	    settings. (Eee by gum, yet another mixer, yawn).
+
+	#_fsynth_ an Ncurses based "fourier" synthesis "realtime" generator.
+
+
+*Compiling and installing
+
+You will need the ncurses library and header files. You will need sound card
+support compiled into your kernel. You can build some of the programs, tones
+sgen and swgen, without soundcard support. These programs then can be used
+to generate raw data or WAV files. You can also compile these programs
+under other OSes than Linux, e.g. Sunos 4.1.
+
+Edit the configuration file config.h, to set the options/defaults you require.
+The defaults assume compilation under Linux with soundcard support.
+The file has ample comments and should be self explanatory. If anyone wants
+to suggest changes for building under other OSes then let me know and 
+I'll inlcude the changes.
+
+Check out the Makefile and edit anything that is wrong for your system. The
+ncurses library is assumed to be in normal library 'path' and the
+ncurses include file is assumed to be in either /usr/include/curses or
+/usr/include/ncurses/curses . If not, edit as appropriate. Just type 'make'
+to make the programs.
+
+Don't set -Wall in the makefile, the results will be deeply embarassing to
+yours truly :-)
+
+All the programs support optional interrogation of a common set of 
+configuration files. See _CONFIG.FILES_ for details.
+
+Type 'make sysinstall' to install the programs into /usr/local/bin and the
+man pages into /usr/local/man/man1. Type 'make localinstall' to install into
+$HOME/bin and $HOME/man/man1. If none of these are ok for you then copy
+manually or edit the Makefile. Edit the setting of variable PROGS to
+customise which programs you install, e.g. you may not wish to install yet
+another mixer program so delete smix from the list.
+
+
+These programs have been tested on on various versions of Linux from
+Kernels 2.0.36 - 2.6.22, and on distributions from RedHat et al., Debian
+and Ubuntu. Seems to work with ALSA or OSS, and I have reports of it porting to FreeBSD easily. Compiled with no sound card support, the command line utilities
+should work for creating sound files on most *nix OSes.
+
+*Distribution and Copying
+
+Distribution of this package is covered by the terms of the GNU 
+General Public License, version 2. See the file COPYING for further details.
+These programs are Copyright (c) 1996-2008 Jim Jackson & contributors.
+
+
+        Jim Jackson     <jj@franjam.org.uk>
+
+
+--------------------
+HomePage {+http://www.comp.leeds.ac.uk/jj+}
+

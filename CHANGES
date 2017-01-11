@@ -1,0 +1,118 @@
+
+siggen - a package of waveform generation programs for linux
+------------------------------------------------------------
+
+Version 2.3.+
+
+  siggen
+  
+    Tried adding loadable waveforms - came to an impasse. I will revisit
+    this.
+    Added a "tracking" feature suggested by Gart Reese. 't' or 'T'
+    while in the waveform, frequency or gain fields will cause both
+    similar fields of each channel to track, i.e. have the same value.
+    A "tracking" message shows which fields are currently tracking.
+    Repeating 't' or 'T' cancels the tracking of the fields.
+    
+  fsynth
+    
+    A curses based "fourier" synthesis program. Allows a mixture of
+    a fundamental sine wave and varying proportions of it's harmonics
+    to be mixed to create complex waveforms.
+    
+  tones
+
+    Added loadable waveforms. Tones can load a waveform from a WAV file
+    that contains exactly one seconds worth of samples, at the same samplerate
+    as tones is using and same format etc, and it will "play" from the these
+    samples. The waveform name is the basename of the wav file with directory
+    and any suffix removed. To work correctly the samples should be for a 1Hz
+    wave. If its for say a 2Hz wave then the frequencies generated will all
+    be double for that waveform.
+    Added recursive command file reading.
+    Attenuation/gain levels added, thanks to "Mark E. Shoulson"
+    <mark@kli.org> for a patch, feedback and comments. Fixed faulty mixing
+    code for more than 2 channels.
+
+  All curses progs
+
+    The ability to "Lock" input field to freeze values. Locked fields
+    are skipped while moving around the screen. All locked fields can 
+    be unlocked in one go to reset. '!' or 'L' locks the current field,
+    'U' unlocks all locked fields. This was the result of misunderstanding
+    an idea from Garst!
+    
+    Also added ability to redraw screen by pressing Ctrl-L (^L), useful
+    if screen gets garbled.
+
+    Bug fix in scfio.c, thanks to "Garst R. Reese" <reese@isn.net>
+    for use egcs and finding the bug - I think gcc was too forgiving.
+
+  All progs
+    
+    Added configuration file(s) support. 
+
+Version 2.2
+
+  tones, sgen, swgen
+
+    Added ability to compile on machines without sound support,
+    so that WAV and raw data files can be created.
+
+    Fixed so can be compiled under SUNOS on sparc machines. This meant
+    fixing the implicit little endian nature of the raw and wav file writing
+    code.
+   
+    New config.h file added with user configurable options gathered together
+    in one place, for global options.
+
+  tones, sgen, swgen
+
+    Added the -x10 and -x100 options, which when in use allow the
+    generation of freq. to the nearest 0.1Hz or 0.01Hz by forcing
+    the specification of all frequencies to be 10 or 100 times
+    too big. 
+
+    e.g.  swgen -x10 -2 -v 2 2000 20000
+
+          causes stereo samples for a 0.2Hz sawtooth ramp sweeping
+          a sin wave from 200Hz to 2000Hz.
+
+Version 2.1
+
+   Fixed compilation problem of incompatible extern declaration
+     of sys_errlist . extern wasn't necessary so deleted it.
+
+Version 2
+
+   Added swgen - a swept frequency generator.
+
+   Added sweepgen - a curses based swept freq. generator
+
+   Changed siggen to play continuously - changes to waveform, freq,
+     gain etc take effect (almost) immediately. Downside is that
+     this is a lot more processor intensive. Fine, just, on my 486DX2/66.
+
+   Extended the tones program, extensively.
+
+   Added dtmf program which can be used as tone phone dialer.
+
+   Fixed mixed up description of sawtooth/triangle waves in sgen manual.
+
+Version 1.1  released xx March 1997
+
+   Fixed a small initialise bug in sgen - reported by 
+      Michael Meifert <mime@dk3hg.hanse.de>  
+      (Michael this email address doesn't work)
+
+   Fixed a bug in siggen that prevented PULSE waveforms being generated
+      
+   Added the tones program following a suggestion by Michael who
+      wanted a program to generate tones to control a radio repeater (I think).
+
+
+Version 1    released  6 March 1997
+
+   contained programs sgen, siggen, smix, soundinfo
+
+

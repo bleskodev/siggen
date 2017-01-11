@@ -1,0 +1,193 @@
+.TH sgen 1 "20 Feb 1998" "Release 2.3" "Linux System Manual"
+.SH NAME
+.I sgen \- a simple signal generator program
+.SH SYNOPSIS
+.IP sgen\ [flags]\ waveform\ freq
+waveform is sine, cosine, square, triangle, sawtooth, noise
+.IP sgen\ [flags]\ pulse\ freq\ [Mark/Space]
+pulse has extra param Mark/Space % - def. is 10 (%)
+.SH DESCRIPTION
+.I sgen
+is a simple signal generator program, that can digitally generate standard
+waveforms on the LINUX /dev/dsp device. 8 or 16 bit samples can be generated, 
+in mono or stereo. In stereo the two signals can be in phase or in anti-phase
+(180 degrees). The frequency is specified as an integer number of Hertz.
+Fractional Hertz frequencies are not supported. Of course, only frequencies 
+less than half the samplerate (number of samples/sec) can be generated.
+.PP 
+The waveforms that can be generated are:
+.IP sine
+A standard sine wave
+.IP cosine
+a sine wave with a 90 degree phase shift
+.IP square
+a standard square wave with a 50% mark space ratio
+.IP sawtooth
+a ramp waveform with 'infinately' fast flyback (:-) An ideal oscilloscope
+timebase signal.
+.IP triangle
+shaped like equally spaced teeth on a saw (:-)
+.IP noise
+This is weak. All it consists of is one second of pseudo-randomly generated
+samples, played repeatedly. I'd love to do proper white/pink noise,
+but I don't know enough, and I don't think the structure of the program
+is conducive to accurate noise generation.
+.IP pulse
+A square waveform where the mark/space ratio (as a percentage) can be 
+specified. The default value is 10% (mark/space ratio of 1:9).
+.PP
+.I sgen
+creates one second's worth of generated output in a buffer and plays the
+buffer repeatedly, until it is terminated.
+.PP
+A lot of thought has gone into the algorithms for generating the waveforms.
+I believe the sin/cos wave to be very pure (modulo your sound card :-), but
+I don't have access to a THD meter to measure it. For best signal accuracy
+.I NEVER
+use the gain factor option (-A). The generator will then make the wave's
+peak value fit the maximum digital values allowed. Use a mixer program to
+control the output volume, or an external attenuator.
+.PP
+The gain factor option can be useful for simulating a signal that has been
+subject to clipping. Specify a gain of > 100%. In fact a trapezoid signal
+can be made by generating a clipped triangular wave. The greater the gain,
+the closer the signal approaches a square wave (the rise and fall times
+decrease).
+.IP Defaults
+output to /dev/dsp, 22050 samples/sec, mono, 16 bit
+samples if possible, else 8 bit. 
+.SH OPTIONS
+.IP -h
+display usage and help info
+.IP -v
+be verbose
+.IP -o\ file
+write digital sample to file ('-' is stdout)
+.IP -w\ file
+as '-o' but written as a WAVE format file. -a (append) is not valid
+with this option.
+.IP -f,-a
+force overwrite/append of/to file.
+.IP -C\ file
+use "file" as the local configuration file (see below).
+.IP -s\ samples
+generate with samplerate of samples/sec
+.IP -8/-16\ or\ -b\ 8|16
+force 8 bit or 16 bit mode.
+.IP -1,-2,-2a
+mono (def), stereo or stereo in antiphase
+.IP -A\ n
+scale samples by n/100, def. n is 100 (i.e. percentage of full scale output)
+.IP -t\ N|Nm
+generate output for either N secs or Nm millisecs only.
+.IP -x10\ or\ -x100
+Scale frequencies down by a factor of 10 or 100. This allows fractional
+Hz values to be generated. See EXAMPLES below for its use. It is
+a Kludge.
+
+.SH EXAMPLES
+.IP sgen\ -v\ sin\ 440
+generate a sin wave of 440Hz at 22050 samples/sec, 16bit samples on 16 bit
+card, 8 bit samples on an 8 bit card.
+.IP sgen\ -v\ -s\ 44100\ -w\ sin444.wav\ sin\ 440
+as above but at a samplerate or 44100/sec and save a one second of samples 
+as a WAVE file in sin440.wav
+.IP sgen\ -v\ -A\ 500\ saw\ 1000
+generate a 1000Hz sawtooth wave severely clipped. The waveform will look like 
+a square wave with a rise and fall time of one tenth of the wave period. (I
+think that's what the scribbled calculation on the back of this envelope
+gives :-)
+.IP sgen\ -v\ -2a\ sin\ 1000
+generate 2 1000Hz sine waves out of phase by 180 degrees, one on each 
+stereo channel.
+.IP sgen\ -v\ pulse\ 1000\ 95
+generate a 1000Hz pulse wave with the 'on' period being 95% of the
+waveform period, i.e. a mark/space ratio of 19:1.
+.IP sgen\ -v\ -x10\ sin\ 2616
+generate middle C 261.6Hz (2616/10) from the equally tempered scale. Yes
+it's a royal pain remembering to scale all freqs. by a factor of 10, but
+I needed it in a hurry and didn't have time to do it better.
+
+.SH CONFIGURATION\ FILES
+.PP
+Three possible configuration files can be used: a LOCAL config file (usually
+in current directory), a HOME config file in user's $HOME directory and a
+GLOBAL config file.
+.PP
+All the siggen suite of programs are compiled with the names of the config
+files built in. By default the configuration files are:
+.IP ./.siggen.conf
+is the LOCAL config file.
+.IP $HOME/.siggen.conf
+is the HOME config file.
+.IP /etc/siggen.conf
+is the GLOBAL config file.
+.IP sgen\ -h
+will indicate which config files will be searched for.
+.PP
+The config files do not have to exist. If they exist and are readable by the
+program they are used, otherwise they are simply ignored.
+.PP
+The config files are always searched for configuration values in the order
+LOCAL, HOME, GLOBAL. This allows a scheme where the sysadmin sets up default
+config values in the GLOBAL config file, but allows a user to set some or
+all different values in their own HOME config file, and to set yet more
+specific values when run from a particular directory.
+.PP
+If no configuration files exist, the program provides builtin
+default values, and most of these values can be set
+by appropriate command line switches and flags.
+.PP
+See siggen.conf(5) for details of the configuration files.
+.PP
+.I sgen
+looks for configuration values CHANNELS, DACFILE, SAMPLERATE,
+SAMPLESIZE, VERBOSE.
+.IP CHANNELS
+sets either mono or stereo mode like the '-1|-2' options.
+.IP DACFILE
+allows the name of the DAC/DSP/PCM device to be changed from /dev/dsp
+.IP SAMPLERATE
+sets the number of samples/sec for the DAC device
+.IP SAMPLESIZE
+sets whether 8 or 16 bit samples to be generated
+.IP VERBOSE
+sets whether or not to run in verbose mode.
+
+.SH
+.SH SEE ALSO
+.IP siggen.conf(5)
+.SH
+.SH BUGS
+.SH
+.SH COPYING
+.I Copyright\ 1995-2008\ Jim\ Jackson
+.PP
+The software described by this manual is covered by the GNU General
+Public License, Version 2, June 1991, issued by :
+.IP
+Free Software Foundation, Inc.,
+.br
+675 Mass Ave,
+.br
+Cambridge, MA 02139, USA
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translation instead of in the original English.
+.SH AUTHOR
+.I Jim Jackson
+.br
+.sp
+.I Email: jj@franjam.org.uk
+.br
