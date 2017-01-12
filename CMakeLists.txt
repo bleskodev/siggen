@@ -7,42 +7,44 @@ find_package(qibuild)
 list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
  
 # simple command line programs...
-SET(tones_src tones.c tonesgen.c generator.c misc.c wavfile.c wavsubs.c DAC.c configsubs.c)
-SET(sgen_src sgen.c generator.c misc.c wavfile.c wavsubs.c DAC.c configsubs.c)
-SET(swgen_src swgen.c generator.c misc.c wavfile.c wavsubs.c DAC.c configsubs.c)
-SET(smix_src smix.c mixer.c configsubs.c)
-SET(soundinfo_src soundinfo.c)
+SET(tones_src src/tones.c src/tonesgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
+SET(sgen_src src/sgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
+SET(swgen_src src/swgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
+SET(smix_src src/smix.c src/mixer.c src/configsubs.c)
+SET(soundinfo_src src/soundinfo.c)
 #
 # curses based programs...
-SET(fsynth_src fsynth.c fsynscr.c scrsubs.c generator.c misc.c DAC.c scfio.c configsubs.c)
-SET(siggen_src siggen.c sigscr.c scrsubs.c generator.c misc.c DAC.c scfio.c configsubs.c)
-SET(sweepgen_src sweepgen.c sweepscr.c scrsubs.c generator.c misc.c DAC.c scfio.c configsubs.c)
+SET(fsynth_src src/fsynth.c src/fsynscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
+SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
+SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
 
 #
 # man pages...
-SET(man1_pages fsynth.1 sgen.1 siggen.1 smix.1 soundinfo.1 sweepgen.1 swgen.1 tones.1)
-SET(man5_pages siggen.conf.5)
+SET(man1_pages
+  doc/man/fsynth.1 doc/man/sgen.1 doc/man/siggen.1 doc/man/smix.1
+  doc/man/soundinfo.1 doc/man/sweepgen.1 doc/man/swgen.1 doc/man/tones.1)
+SET(man5_pages doc/man/siggen.conf.5)
 
 #
 # doc pages...
 SET(doc_output_dir ${CMAKE_CURRENT_BINARY_DIR}/sdk/share/doc)
-SET(tones_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/tones.1)
+SET(tones_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/tones.1)
 SET(tones_doc ${doc_output_dir}/tones.txt)
-SET(sgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/sgen.1)
+SET(sgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/sgen.1)
 SET(sgen_doc ${doc_output_dir}/sgen.txt)
-SET(swgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/swgen.1)
+SET(swgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/swgen.1)
 SET(swgen_doc ${doc_output_dir}/swgen.txt)
-SET(smix_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/smix.1)
+SET(smix_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/smix.1)
 SET(smix_doc ${doc_output_dir}/smix.txt)
-SET(soundinfo_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/soundinfo.1)
+SET(soundinfo_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/soundinfo.1)
 SET(soundinfo_doc ${doc_output_dir}/soundinfo.txt)
-SET(fsynth_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/fsynth.1)
+SET(fsynth_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/fsynth.1)
 SET(fsynth_doc ${doc_output_dir}/fsynth.txt)
-SET(siggen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/siggen.1)
+SET(siggen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/siggen.1)
 SET(siggen_doc ${doc_output_dir}/siggen.txt)
-SET(siggen_conf_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/siggen.conf.5)
+SET(siggen_conf_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/siggen.conf.5)
 SET(siggen_conf_doc ${doc_output_dir}/siggen.conf.txt)
-SET(sweepgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/sweepgen.1)
+SET(sweepgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/sweepgen.1)
 SET(sweepgen_doc ${doc_output_dir}/sweepgen.txt)
 
 # export build commands for YouCompleteMe
