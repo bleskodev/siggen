@@ -1,5 +1,6 @@
 <project version="3">
   <maintainer email="bleskodev@gmail.com">Blesko Dev</maintainer>
   <qibuild name="siggen">
+    <depends buildtime="true" runtime="false" testtime="true" names="googletest" />
   </qibuild>
 </project>

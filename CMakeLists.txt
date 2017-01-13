@@ -19,6 +19,12 @@ SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/misc.
 SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
 
 #
+# tests
+# regroup 'helper' sources into a 'lib' for testing
+SET(lib_src src/configsubs.c)
+SET(test_lib_src test/test_configsubs.cpp)
+
+#
 # man pages...
 SET(man1_pages
   doc/man/fsynth.1 doc/man/sgen.1 doc/man/siggen.1 doc/man/smix.1
@@ -93,4 +99,7 @@ qi_use_lib(fsynth ncurses m)
 # man1
 qi_install_data(${man1_pages} SUBFOLDER man/man1)
 qi_install_data(${man5_pages} SUBFOLDER man/man5)
+
+# tests
+qi_create_gmock(test_lib ${lib_src} ${test_lib_src})
 
