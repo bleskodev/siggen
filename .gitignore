@@ -1,4 +1,5 @@
 *.swp
+.ycm_extra_conf.*
 build-sys-linux-x86_64/
 build-linux64/
 
