@@ -48,10 +48,11 @@
  *     All values are strings, as is the returned value.
  */
 
+#include "configsubs.h"
+#include "sysfio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sysfio.h"
 
 #define SEP ":"
 #define STR_SIZE 130
@@ -75,20 +76,18 @@
  * 2 = output where param matches are got from as well
  */
 
-int verbose=0;
+static int verbose=0;
 
-char *Xlat();
+static const char *Xlat(char* s, FILE* fptr);
 
-char nm1[STR_SIZE+2];
-char nm2[STR_SIZE+2];
-char nm3[STR_SIZE+2];
+static char nm1[STR_SIZE+2];
+static char nm2[STR_SIZE+2];
+static char nm3[STR_SIZE+2];
 
-FILE *F[NUM_CONF_FILES] = { NULL, NULL, NULL };
-char *Fnm[NUM_CONF_FILES] = { nm1, nm2, nm3 };
+static FILE *F[NUM_CONF_FILES] = { NULL, NULL, NULL };
+static char *Fnm[NUM_CONF_FILES] = { nm1, nm2, nm3 };
 
-init_conf_files(local,home,global,v)
-char *local,*home,*global;
-int v;
+int init_conf_files(const char *local, const char *home, const char *global, int v)
 {
   int st;
   char f[STR_SIZE+4],*p,*s;
@@ -119,21 +118,22 @@ int v;
   return(0);
 }
 
-close_conf_files()
+void close_conf_files()
 {
   if (F[LOCAL] != NULL)  { sysfio_fclose(F[LOCAL]); F[LOCAL]=NULL; V_CLOSE(Fnm[LOCAL]); }
   if (F[HOME] != NULL)   { sysfio_fclose(F[HOME]); F[HOME]=NULL;  V_CLOSE(Fnm[HOME]); }
   if (F[GLOBAL] != NULL) { sysfio_fclose(F[GLOBAL]); F[GLOBAL]=NULL;  V_CLOSE(Fnm[GLOBAL]); }
 }
 
-char *get_conf_value(sys,name,def)
-char *sys,*name,*def;
+const char *get_conf_value(const char *sys, const char *name, const char *def)
 {
   int st,i,n;
-  char f[STR_SIZE+4],*p,*s;
+  char f[STR_SIZE+4], *s;
+  const char* p;
 
   *f=0; n=0;
-  if (name == NULL || *name == 0) return(def);
+  if (name == NULL || *name == 0)
+    return(def);
   if (sys != NULL) {
     strncpy(f,sys,STR_SIZE);
     strcat(f,SEP);
@@ -153,7 +153,8 @@ char *sys,*name,*def;
    */
   
   for (i=0; i<NUM_CONF_FILES; i++) {
-    if (F[i]==NULL) continue;
+    if (F[i]==NULL)
+      continue;
     sysfio_rewind(F[i]);
     if ((p=Xlat(f,F[i]))!=NULL) {
       V_PARAM(f,p,Fnm[i]);
@@ -162,7 +163,8 @@ char *sys,*name,*def;
   }
   if (f != s) {
     for (i=0; i<NUM_CONF_FILES; i++) {
-      if (F[i]==NULL) continue;
+      if (F[i]==NULL)
+        continue;
       sysfio_rewind(F[i]);
       if ((p=Xlat(s,F[i]))!=NULL) {
         V_PARAM(s,p,Fnm[i]);
@@ -193,27 +195,28 @@ char *sys,*name,*def;
  *    Xlat returns NULL on EOF or error - use ferror to check error
  */
 
-static char Xlat_bf[258];
+enum { Xlat_bf_size = 256 };
+static char Xlat_bf[Xlat_bf_size+2];
 
-char *Xlat(s,fptr)
-char *s;
-FILE *fptr;
+static const char *Xlat(char* s, FILE* fptr)
+{
+  int n;
+  char *p;
 
- { int n;
-   char *p;
+  n=strlen(s);
+  p=Xlat_bf+n;
 
-   n=strlen(s);
-   p=Xlat_bf+n;
-
-   while ( sysfio_fgets(Xlat_bf,256,fptr) != NULL )
-    { if ((strncmp(s,Xlat_bf,n) == 0) && (*p==' '))
-       { while ( *++p==' ');
-         if ((s=strchr(p,'\n'))!=NULL) *s='\0';
-         return(p);
-       }
+  while ( sysfio_fgets(Xlat_bf,Xlat_bf_size,fptr) != NULL )
+  {
+    if ((strncmp(s,Xlat_bf,n) == 0) && (*p==' ')) {
+      while ( *++p==' ')
+        ;
+      if ((s=strchr(p,'\n'))!=NULL)
+        *s='\0';
+      return(p);
     }
-
-   return(NULL);
- }
+  }
+  return(NULL);
+}
 
 

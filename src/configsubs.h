@@ -40,13 +40,13 @@ extern "C" {
  *      2 = also say where config values are found/matched.
  *     Returns 0 is all ok else returns an error code.
  */
-int init_conf_files(char *local, char *home, char *global, int verb);
+int init_conf_files(const char *local, const char *home, const char *global, int verb);
 
 /*
  *  close_conf_files()     simply closes down any open conf. files
  *     Not really necessary, but could be useful.
  */
-int close_conf_files();
+void close_conf_files();
 
 /*
  *  get_conf_value(sys,name,def)   try and get the config. value
@@ -57,7 +57,7 @@ int close_conf_files();
  *     'def' is returned.
  *     All values are strings, as is the returned value.
  */
-char *get_conf_value(char *sys, char *name, char *def);
+const char *get_conf_value(const char *sys, const char *name, const char *def);
 
 #ifdef __cplusplus
 } /* extern "C" */

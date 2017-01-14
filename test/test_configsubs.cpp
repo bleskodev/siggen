@@ -59,7 +59,7 @@ TEST_F(Configsubs_FixtureWithStrictSysfioMock, close_conf_files_does_nothing_if_
 {
   // no functions should be called -> no expectations
   
-  EXPECT_EQ(0, close_conf_files());
+  close_conf_files();
 }
 
 TEST_F(Configsubs_FixtureWithStrictSysfioMock, init_config_files_local)
@@ -101,7 +101,7 @@ TEST_F(Configsubs_FixtureWithStrictSysfioMock, close_config_files)
   
   char globalName[] = "global";
   EXPECT_EQ(0, init_conf_files(NULL, NULL, globalName, 0));
-  EXPECT_EQ(0, close_conf_files());
+  close_conf_files();
 }
 
 TEST_F(Configsubs_FixtureWithStrictSysfioMock, get_conf_value_returns_default)
