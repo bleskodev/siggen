@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "sysfio.h"
 
 #define SEP ":"
 #define STR_SIZE 130
@@ -96,7 +97,7 @@ int v;
   close_conf_files();
 
   if (local != NULL) {
-    F[LOCAL]=fopen(local,"r");
+    F[LOCAL]=sysfio_fopen(local,"r");
     strncpy(Fnm[LOCAL],local,STR_SIZE);
     V_OPEN(F[LOCAL],"Local",local);
   }
@@ -106,12 +107,12 @@ int v;
     strcat(f,"/");
     st=STR_SIZE+2-strlen(f);
     strncat(f,home,st);
-    F[HOME]=fopen(f,"r");
+    F[HOME]=sysfio_fopen(f,"r");
     strncpy(Fnm[HOME],f,STR_SIZE);
     V_OPEN(F[HOME],"Home",f);
   }
   if (global != NULL) {
-    F[GLOBAL]=fopen(global,"r");
+    F[GLOBAL]=sysfio_fopen(global,"r");
     strncpy(Fnm[GLOBAL],global,STR_SIZE);
     V_OPEN(F[GLOBAL],"Global",global);
   }
@@ -120,9 +121,9 @@ int v;
 
 close_conf_files()
 {
-  if (F[LOCAL] != NULL)  { fclose(F[LOCAL]); F[LOCAL]=NULL; V_CLOSE(Fnm[LOCAL]); }
-  if (F[HOME] != NULL)   { fclose(F[HOME]); F[HOME]=NULL;  V_CLOSE(Fnm[HOME]); }
-  if (F[GLOBAL] != NULL) { fclose(F[GLOBAL]); F[GLOBAL]=NULL;  V_CLOSE(Fnm[GLOBAL]); }
+  if (F[LOCAL] != NULL)  { sysfio_fclose(F[LOCAL]); F[LOCAL]=NULL; V_CLOSE(Fnm[LOCAL]); }
+  if (F[HOME] != NULL)   { sysfio_fclose(F[HOME]); F[HOME]=NULL;  V_CLOSE(Fnm[HOME]); }
+  if (F[GLOBAL] != NULL) { sysfio_fclose(F[GLOBAL]); F[GLOBAL]=NULL;  V_CLOSE(Fnm[GLOBAL]); }
 }
 
 char *get_conf_value(sys,name,def)
@@ -153,7 +154,7 @@ char *sys,*name,*def;
   
   for (i=0; i<NUM_CONF_FILES; i++) {
     if (F[i]==NULL) continue;
-    rewind(F[i]);
+    sysfio_rewind(F[i]);
     if ((p=Xlat(f,F[i]))!=NULL) {
       V_PARAM(f,p,Fnm[i]);
       return(p);
@@ -162,7 +163,7 @@ char *sys,*name,*def;
   if (f != s) {
     for (i=0; i<NUM_CONF_FILES; i++) {
       if (F[i]==NULL) continue;
-      rewind(F[i]);
+      sysfio_rewind(F[i]);
       if ((p=Xlat(s,F[i]))!=NULL) {
         V_PARAM(s,p,Fnm[i]);
         return(p);
@@ -204,7 +205,7 @@ FILE *fptr;
    n=strlen(s);
    p=Xlat_bf+n;
 
-   while ( fgets(Xlat_bf,256,fptr) != NULL )
+   while ( sysfio_fgets(Xlat_bf,256,fptr) != NULL )
     { if ((strncmp(s,Xlat_bf,n) == 0) && (*p==' '))
        { while ( *++p==' ');
          if ((s=strchr(p,'\n'))!=NULL) *s='\0';

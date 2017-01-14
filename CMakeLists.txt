@@ -4,25 +4,29 @@ project(siggen)
 find_package(qibuild)
 #qi_sanitize_compile_flags()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+include_directories(".")
+
 list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
  
 # simple command line programs...
-SET(tones_src src/tones.c src/tonesgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
-SET(sgen_src src/sgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
-SET(swgen_src src/swgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c)
-SET(smix_src src/smix.c src/mixer.c src/configsubs.c)
+SET(tones_src src/tones.c src/tonesgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c src/sysfio.c)
+SET(sgen_src src/sgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c src/sysfio.c)
+SET(swgen_src src/swgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c src/configsubs.c src/sysfio.c)
+SET(smix_src src/smix.c src/mixer.c src/configsubs.c src/sysfio.c)
 SET(soundinfo_src src/soundinfo.c)
 #
 # curses based programs...
-SET(fsynth_src src/fsynth.c src/fsynscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
-SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
-SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c)
+SET(fsynth_src src/fsynth.c src/fsynscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c src/sysfio.c)
+SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c src/sysfio.c)
+SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c src/configsubs.c src/sysfio.c)
 
 #
 # tests
 # regroup 'helper' sources into a 'lib' for testing
-SET(lib_src src/configsubs.c)
-SET(test_lib_src test/test_configsubs.cpp)
+SET(lib_src src/configsubs.c src/sysfio.c)
+SET(test_lib_src test/test_configsubs.cpp test/test_sysfio.cpp test/sysfio_mock.cpp)
 
 #
 # man pages...
@@ -54,7 +58,7 @@ SET(sweepgen_doc_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/sweepgen.1)
 SET(sweepgen_doc ${doc_output_dir}/sweepgen.txt)
 
 # export build commands for YouCompleteMe
-set(CMAKE_EXPORT_COMPILE_FLAGS 1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # targets...
 # tones
