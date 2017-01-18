@@ -19,7 +19,7 @@ TEST(misc, hcf)
 //**************************************************************
 TEST(misc, parse_1_param)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = ' ';
   char input[] = "parameter";
   const int paramCount = parse(input, output, sep);
@@ -29,7 +29,7 @@ TEST(misc, parse_1_param)
 
 TEST(misc, parse_1_param_with_quotes)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = ' ';
   char input[] = "'this is one parameter'";
   const int paramCount = parse(input, output, sep);
@@ -39,7 +39,7 @@ TEST(misc, parse_1_param_with_quotes)
 
 TEST(misc, parse_2_params)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = ' ';
   char input[] = "parameter1 parameter2";
   const char* expectedParam1 = input;
@@ -52,7 +52,7 @@ TEST(misc, parse_2_params)
 
 TEST(misc, parse_2_params_with_quotes)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = ' ';
   char input[] = "parameter1 'this is parameter2'";
   const char* expectedParam1 = input;
@@ -65,7 +65,7 @@ TEST(misc, parse_2_params_with_quotes)
 
 TEST(misc, parse_with_custom_separator)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = '_';
   char input[] = "parameter1_parameter2";
   const char* expectedParam1 = input;
@@ -78,7 +78,7 @@ TEST(misc, parse_with_custom_separator)
 
 TEST(misc, parse_ignores_leading_separators)
 {
-  char* output[MAX_ARGS];
+  const char* output[MAX_ARGS];
   char sep = '_';
   char input[] = " \t_parameter1_ \tparameter2";
   const char* expectedParam1 = strchr(input, 'p');

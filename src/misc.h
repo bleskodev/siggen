@@ -33,17 +33,17 @@ extern "C" {
  *            causes current process to stop and a reschedule take place
  *            as well as doing the delay.
  */
-int delay(int us);
+void delay(int us);
 
 /* 
  * err_rpt(err,msg)
  */
-int err_rpt(short int err, char *msg);
+int err_rpt(short err, const char *msg);
 
 /*
  * hcf(x,y)   find highest common factor of x and y
  */
-int hcf(unsigned x, unsigned y);
+unsigned int hcf(unsigned int x, unsigned int y);
 
 /*
  * parse(s,aa,sep) splits s up into parameters and stores ptrs
@@ -54,7 +54,7 @@ int hcf(unsigned x, unsigned y);
  * returns number of parameters parsed
  */
 enum { MAX_ARGS = 50 };
-int parse(char *s,char **aa, char sep);
+int parse(char *s, const char **aa, char sep);
 
 /*
  * mstosamples(ms,sr)  convert ms millisecs into number of samples
