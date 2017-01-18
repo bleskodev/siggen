@@ -11,23 +11,28 @@ include_directories(".")
 list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 # common lib
-SET(common_src src/configsubs.c src/sysfio.c)
-SET(common_hdr src/configsubs.h src/sysfio.h)
+SET(common_src src/configsubs.c src/sysfio.c src/misc.c)
+SET(common_hdr src/configsubs.h src/sysfio.h src/misc.h)
 
 # simple command line programs...
-SET(tones_src src/tones.c src/tonesgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c)
-SET(sgen_src src/sgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c)
-SET(swgen_src src/swgen.c src/generator.c src/misc.c src/wavfile.c src/wavsubs.c src/DAC.c)
+SET(tones_src src/tones.c src/tonesgen.c src/generator.c src/wavfile.c src/wavsubs.c src/DAC.c)
+SET(sgen_src src/sgen.c src/generator.c src/wavfile.c src/wavsubs.c src/DAC.c)
+SET(swgen_src src/swgen.c src/generator.c src/wavfile.c src/wavsubs.c src/DAC.c)
 SET(smix_src src/smix.c src/mixer.c)
 SET(soundinfo_src src/soundinfo.c)
 
 # curses based programs...
-SET(fsynth_src src/fsynth.c src/fsynscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c)
-SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c)
-SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/misc.c src/DAC.c src/scfio.c)
+SET(fsynth_src src/fsynth.c src/fsynscr.c src/scrsubs.c src/generator.c src/DAC.c src/scfio.c)
+SET(siggen_src src/siggen.c src/sigscr.c src/scrsubs.c src/generator.c src/DAC.c src/scfio.c)
+SET(sweepgen_src src/sweepgen.c src/sweepscr.c src/scrsubs.c src/generator.c src/DAC.c src/scfio.c)
 
 # tests
-SET(test_common_src test/test_configsubs.cpp test/test_sysfio.cpp test/sysfio_mock.cpp)
+SET(test_common_src
+  test/test_configsubs.cpp
+  test/test_sysfio.cpp
+  test/test_misc.cpp
+  test/sysfio_mock.cpp
+)
 
 # man pages...
 SET(man1_pages
